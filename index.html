@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tape</title>
+<meta name="description" content="Markets fluency practice: learn it, drill it, say it out loud.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tape">
+<meta name="theme-color" content="#09090b">
+<meta name="referrer" content="no-referrer">
+<!-- CSP: the sha256 values are the two inline scripts. Any edit to either script changes its hash;
+     tools/publish.sh refuses to publish until they match and prints the right values. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://umimaxkucnugmkifenyg.supabase.co wss://umimaxkucnugmkifenyg.supabase.co; script-src 'self' https://cdn.jsdelivr.net 'sha256-7YUo9/61GI1Jm2sLx9tD4RQETxqO4VYzmOXgZMq7/EY=' 'sha256-WsbIUSlPQZYxJO5GsaDkhQGAQFaNBUcZ2gVg6S68unM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src blob:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="static/icon-192.png">
+<link rel="apple-touch-icon" href="static/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
+<script>
+/* Apply the saved theme before first paint so light mode never flashes dark. */
+(function(){ try{ var s=JSON.parse(localStorage.getItem("tape.state.v1")||"null");
+  if(s && s.set && s.set.theme==="light") document.documentElement.setAttribute("data-theme","light"); }catch(e){} })();
+</script>
+<style>
+:root{
+  --bg-base:#09090b; --bg-surface:#0f1117; --bg-card:#161922; --bg-elevated:#1c2030; --bg-input:#0d1019;
+  --text-primary:#f0f2f5; --text-secondary:#8b95a8; --text-muted:#6b7589; --text-disabled:#3d4555;
+  --border-subtle:rgba(255,255,255,0.05); --border-default:#1e2433; --border-hover:#2a3247; --edge:rgba(255,255,255,.08);
+  --accent:#0d9488; --accent-hover:#0f766e; --accent-light:#2dd4bf; --accent-muted:rgba(13,148,136,0.12);
+  --sec:#b45309; --sec-light:#d97706; --sec-muted:rgba(180,83,9,0.14);
+  --success:#10b981; --success-muted:rgba(16,185,129,0.12);
+  --warning:#f59e0b; --warning-muted:rgba(245,158,11,0.12);
+  --error:#ef4444; --error-muted:rgba(239,68,68,0.12);
+  --chip-mute:rgba(255,255,255,.06); --seg-bg:#0d1019; --seg-on:#1c2030;
+  --ring-track:#1c2030; --ring-dim:rgba(13,148,136,.38); --ring-hi:#2dd4bf;
+  --shadow-card:0 2px 8px rgba(13,148,136,0.06), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-elev:0 8px 24px rgba(13,148,136,0.1), 0 2px 6px rgba(0,0,0,0.25);
+  --snappy:cubic-bezier(0.22,1,0.36,1);
+  --gutter:16px;
+}
+[data-theme="light"]{
+  --bg-base:#fafaf8; --bg-surface:#f3f2ee; --bg-card:#ffffff; --bg-elevated:#f3f2ee; --bg-input:#ffffff;
+  --text-primary:#18181b; --text-secondary:#52525b; --text-muted:#6b6b74; --text-disabled:#a1a1aa;
+  --border-subtle:#eeece7; --border-default:#e2e0da; --border-hover:#cfccc5; --edge:#e2e0da;
+  --accent:#0d9488; --accent-hover:#0f766e; --accent-light:#0f766e; --accent-muted:rgba(13,148,136,0.10);
+  --sec:#b45309; --sec-light:#b45309; --sec-muted:rgba(180,83,9,0.10);
+  --success:#047857; --success-muted:rgba(16,185,129,0.12);
+  --warning:#c2410c; --warning-muted:rgba(234,88,12,0.10);
+  --error:#dc2626; --error-muted:rgba(239,68,68,0.10);
+  --chip-mute:rgba(0,0,0,.05); --seg-bg:#efeee9; --seg-on:#ffffff;
+  --ring-track:#e7e5df; --ring-dim:rgba(13,148,136,.30); --ring-hi:#0d9488;
+  --shadow-card:0 2px 8px rgba(10,22,40,0.06), 0 1px 2px rgba(10,22,40,0.04);
+  --shadow-elev:0 12px 40px rgba(10,22,40,0.12), 0 2px 6px rgba(10,22,40,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-feature-settings:"cv01";
+  background:var(--bg-base);color:var(--text-primary);display:flex;flex-direction:column;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 50% 0%, var(--bg-surface) 0%, var(--bg-base) 62%)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;font-feature-settings:"cv01";text-align:inherit}
+input{font:inherit;font-feature-settings:"cv01"}
+a{color:inherit}
+svg{display:block;flex:0 0 auto}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--accent-light);outline-offset:2px;border-radius:8px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+#app{flex:1;display:flex;flex-direction:column;position:relative;z-index:1;max-width:520px;width:100%;margin:0 auto;min-height:0}
+.appbar{flex:0 0 auto;display:flex;align-items:center;gap:10px;min-height:60px;
+  padding:calc(env(safe-area-inset-top) + 8px) calc(var(--gutter) + env(safe-area-inset-right)) 8px calc(var(--gutter) + env(safe-area-inset-left))}
+.appbar:empty{display:none}
+.appbar:empty + main{padding-top:calc(env(safe-area-inset-top) + 16px)}
+.wordmark{display:flex;align-items:center;gap:9px;min-width:0}
+.logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1c2030,#0f1117);border:1px solid rgba(217,119,6,.35);
+  display:flex;align-items:center;justify-content:center;color:#d97706;font-size:15px;font-weight:700;letter-spacing:-.5px;position:relative;overflow:hidden}
+.logo::after{content:'';position:absolute;left:5px;right:5px;bottom:4px;height:2px;border-radius:2px;background:#2dd4bf}
+.wordmark h1{font-size:20px;font-weight:600;letter-spacing:-.3px}
+.bartitle{font-size:14px;font-weight:500;color:var(--text-secondary);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bartitle.big{font-size:20px;font-weight:600;color:var(--text-primary);letter-spacing:-.3px}
+.icobtn{width:44px;height:44px;flex:0 0 44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  color:var(--text-secondary);border:1px solid var(--border-subtle);background:var(--bg-card);transition:transform 120ms var(--snappy)}
+.icobtn:active{transform:scale(.94)}
+.rt{margin-left:auto;display:flex;align-items:center;gap:8px}
+main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  padding:4px calc(var(--gutter) + env(safe-area-inset-right)) 28px calc(var(--gutter) + env(safe-area-inset-left))}
+.tabbar{flex:0 0 auto;display:flex;border-top:1px solid var(--border-subtle);background:var(--bg-surface);
+  padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.tabbar[hidden]{display:none}
+.tab{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:58px;
+  font-size:10.5px;font-weight:500;color:var(--text-muted);transition:color 120ms var(--snappy)}
+.tab.on{color:var(--accent-light)}
+.tab:focus-visible{outline-offset:-3px}
+
+/* shared atoms (from the approved mockup) */
+.micro{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+  border-radius:9999px;padding:4px 9px;line-height:1;white-space:nowrap;vertical-align:middle}
+.chip.sec{background:var(--sec-muted);color:var(--sec-light)}
+.chip.teal{background:var(--accent-muted);color:var(--accent-light)}
+.chip.mute{background:var(--chip-mute);color:var(--text-muted)}
+.chip.warn{background:var(--warning-muted);color:var(--warning)}
+.chip.must{background:var(--chip-mute);color:var(--text-secondary);font-size:9.5px;padding:3px 7px;margin-left:6px}
+.chiprow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-top:1px solid var(--edge);border-radius:12px;padding:16px;box-shadow:var(--shadow-card)}
+.card + .card{margin-top:10px}
+.h-q{font-size:19px;font-weight:500;letter-spacing:-.35px;line-height:1.3}
+.h-title{font-size:22px;font-weight:500;letter-spacing:-.4px;line-height:1.25;margin:10px 0 12px}
+.body{font-size:14px;line-height:1.6;color:var(--text-secondary)}
+.body b,.body strong{color:var(--text-primary);font-weight:500}
+.bignum{display:block;font-size:20px;letter-spacing:-.4px;color:var(--text-primary);font-weight:500;margin-bottom:2px}
+.lbl{font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+.lbl.sec{color:var(--sec-light)}
+.btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:12px;font-size:15px;font-weight:500;
+  letter-spacing:-.1px;padding:0 16px;text-align:center;transition:transform 120ms var(--snappy)}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(13,148,136,.25)}
+.btn.ghost{background:var(--bg-card);border:1px solid var(--border-default);color:var(--text-secondary)}
+.btn.danger{background:var(--bg-card);border:1px solid rgba(239,68,68,.35);color:var(--error)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btnrow{display:flex;gap:9px}
+.stack{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.src{font-size:11.5px;line-height:1.55;color:var(--text-muted);margin-top:12px;display:flex;gap:6px;align-items:flex-start}
+.src svg{margin-top:2px}
+.src a{color:var(--text-secondary);text-decoration:underline;text-decoration-color:var(--border-hover);text-underline-offset:2px}
+.src .chip{margin-right:6px}
+.hint{text-align:center;font-size:12px;color:var(--text-muted);margin-top:10px;line-height:1.5}
+.empty{text-align:center;padding:36px 12px;color:var(--text-muted);font-size:14px;line-height:1.6}
+/* Entry animation only on navigation (main.anim), never on an in-place re-render. */
+main.anim .fade{animation:fade 240ms var(--snappy)}
+#main:focus,#main:focus-visible{outline:none}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:calc(100% - 32px);
+  background:var(--bg-elevated);border:1px solid var(--border-hover);border-radius:9999px;padding:10px 18px;color:var(--text-primary);
+  font-size:13px;font-weight:500;box-shadow:var(--shadow-elev);z-index:50;animation:fade 200ms var(--snappy);text-align:center}
+
+/* home */
+.hello{font-size:13px;color:var(--text-muted)}
+.hero{display:flex;align-items:center;gap:18px;margin:14px 0 16px}
+.ring{position:relative;width:118px;height:118px;flex:0 0 118px}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .n{font-size:30px;font-weight:600;letter-spacing:-1px;font-feature-settings:"tnum"}
+.ring .of{font-size:10.5px;color:var(--text-muted);margin-top:2px;text-align:center;line-height:1.25}
+.stats{display:flex;flex-direction:column;gap:9px;flex:1;min-width:0}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--text-secondary);border-bottom:1px solid var(--border-subtle);padding-bottom:7px}
+.stat:last-child{border-bottom:0}
+.stat b{font-size:15px;font-weight:500;color:var(--text-primary);font-feature-settings:"tnum";white-space:nowrap}
+.today{display:block;width:100%;background:linear-gradient(180deg,rgba(180,83,9,.10),rgba(180,83,9,.03));border:1px solid rgba(217,119,6,.22);border-radius:12px;padding:14px 15px}
+.today .q{font-size:15.5px;font-weight:500;line-height:1.4;letter-spacing:-.2px;margin-top:7px}
+.today .meta{display:flex;gap:8px;margin-top:11px;align-items:center;font-size:12px;color:var(--text-muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.mode{display:block;min-width:0;background:var(--bg-card);border:1px solid var(--border-subtle);border-top:1px solid var(--edge);border-radius:12px;padding:13px;box-shadow:var(--shadow-card);transition:transform 120ms var(--snappy)}
+.mode:active{transform:scale(.985)}
+.mode .ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--accent-muted);color:var(--accent-light);margin-bottom:10px}
+.mode.speak .ic{background:var(--sec-muted);color:var(--sec-light)}
+.mode .nm{font-size:14px;font-weight:500;display:block}
+.mode .ds{font-size:11.5px;color:var(--text-muted);margin-top:3px;line-height:1.4;display:block}
+.stale{display:flex;width:100%;gap:10px;align-items:center;margin-top:12px;padding:11px 13px;border-radius:11px;background:var(--warning-muted);
+  border:1px solid rgba(245,158,11,.22);font-size:12.5px;color:var(--text-secondary);line-height:1.4;min-height:44px}
+.stale b{color:var(--warning);font-weight:500}
+.stale svg{color:var(--warning)}
+.checkin{margin-top:12px;border-radius:12px;padding:14px 15px;background:var(--accent-muted);border:1px solid rgba(13,148,136,.28)}
+.checkin p{font-size:13.5px;line-height:1.55;color:var(--text-secondary);margin-top:6px}
+
+/* learn */
+.chap{display:flex;align-items:center;gap:13px;width:100%;background:var(--bg-card);border:1px solid var(--border-subtle);border-top:1px solid var(--edge);
+  border-radius:12px;padding:12px 13px;box-shadow:var(--shadow-card);margin-bottom:8px;min-height:60px}
+.chap.now{background:linear-gradient(135deg,rgba(13,148,136,.16),rgba(13,148,136,.05));border-color:rgba(13,148,136,.3)}
+.cn{width:32px;height:32px;border-radius:9px;flex:0 0 32px;display:flex;align-items:center;justify-content:center;background:var(--chip-mute);
+  color:var(--text-secondary);font-size:13px;font-weight:600;font-feature-settings:"tnum"}
+.chap.now .cn{background:var(--accent-muted);color:var(--accent-light)}
+.chap.done .cn{background:var(--success-muted);color:var(--success)}
+.ct{flex:1;min-width:0;display:block}
+.ct .t{display:block;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct .m{display:block;font-size:11.5px;color:var(--text-muted);margin-top:3px}
+.minibar{height:4px;border-radius:9999px;background:var(--chip-mute);overflow:hidden;margin-top:7px;display:block}
+.minibar i{display:block;height:100%;border-radius:9999px;background:linear-gradient(90deg,#0d9488,#2dd4bf)}
+.pct{font-size:11px;font-weight:600;color:var(--text-muted);font-feature-settings:"tnum"}
+.sets{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.setchip{width:52px;height:52px;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  border:1px solid var(--border-default);background:var(--bg-elevated);font-size:13px;font-weight:600;color:var(--text-secondary);font-feature-settings:"tnum"}
+.setchip small{font-size:8.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted)}
+.setchip.done{background:var(--success-muted);border-color:rgba(16,185,129,.4);color:var(--success)}
+.setchip.now{background:var(--accent-muted);border-color:var(--accent);color:var(--accent-light)}
+.irow{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--border-subtle);width:100%;min-height:44px}
+.irow:first-child{border-top:0}
+.mdot{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+.irow .tt{flex:1;min-width:0;font-size:13.5px;line-height:1.4;color:var(--text-primary)}
+.hud{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.pips{display:flex;gap:4px;flex:1}
+.pips i{flex:1;height:4px;border-radius:4px;background:var(--bg-elevated)}
+.pips i.d{background:var(--accent)}
+.pips i.c{background:var(--accent-light)}
+.pips i.x{background:var(--error)}
+.tile{background:var(--bg-card);border:1px solid var(--border-subtle);border-top:1px solid var(--edge);border-radius:12px;padding:18px;box-shadow:var(--shadow-card)}
+.tile h4{font-size:17px;font-weight:500;letter-spacing:-.25px;margin:10px 0 8px;line-height:1.3}
+.tile p{font-size:14px;line-height:1.6;color:var(--text-secondary)}
+.tile .eg{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border-default);font-size:14px;line-height:1.55;color:var(--text-secondary)}
+.tile .eg b{color:var(--text-primary);font-weight:500}
+.whopays{border-color:rgba(217,119,6,.22)!important;background:linear-gradient(180deg,rgba(180,83,9,.08),var(--bg-card))!important}
+.requeue{border-radius:11px;padding:12px 14px;background:var(--warning-muted);border:1px solid rgba(245,158,11,.24);font-size:13px;line-height:1.5;color:var(--text-secondary);margin-top:14px}
+.requeue b{color:var(--warning);font-weight:500;display:block}
+.okbox{border-radius:11px;padding:12px 14px;background:var(--success-muted);border:1px solid rgba(16,185,129,.24);font-size:13px;line-height:1.5;color:var(--text-secondary);margin-top:14px}
+.okbox b{color:var(--success);font-weight:500;display:block}
+
+/* drill / quiz */
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.opt{display:flex;align-items:center;gap:11px;width:100%;min-height:50px;padding:12px 14px;border-radius:11px;background:var(--bg-card);border:1px solid var(--border-default);
+  font-size:15px;font-weight:500;line-height:1.35;font-feature-settings:"tnum";color:var(--text-primary);transition:transform 120ms var(--snappy)}
+.opt:active{transform:scale(.99)}
+.opt .k{width:22px;height:22px;flex:0 0 22px;border-radius:7px;background:var(--chip-mute);font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--text-muted)}
+.opt.ok{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.38)}
+.opt.ok .k{background:var(--success);color:#04231a}
+.opt.no{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.3)}
+.opt.no .k{background:var(--error);color:#fff}
+.opt.dim{opacity:.5}
+.opt .tag{margin-left:auto;font-size:11px;font-weight:500;white-space:nowrap;padding-left:6px}
+.bigscore{text-align:center;padding:26px 0 6px}
+.bigscore .v{font-size:52px;font-weight:300;letter-spacing:-2px;font-feature-settings:"tnum"}
+.bigscore .v span{font-size:22px;color:var(--text-muted);letter-spacing:0}
+.bigscore p{font-size:14px;color:var(--text-secondary);margin-top:6px;line-height:1.5}
+
+/* speak */
+.who{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:var(--bg-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;color:var(--text-secondary)}
+.who .n{font-size:13px;font-weight:500}
+.who .r{font-size:11.5px;color:var(--text-muted)}
+.seg{display:flex;background:var(--seg-bg);border:1px solid var(--border-default);border-radius:12px;padding:3px;margin-bottom:14px}
+.seg button{flex:1;min-height:44px;text-align:center;font-size:12.5px;font-weight:500;padding:0 4px;border-radius:9px;color:var(--text-muted)}
+.seg button.on{background:var(--seg-on);color:var(--text-primary);box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.seg button[disabled]{opacity:.5}
+.timer{display:flex;flex-direction:column;align-items:center;margin:24px 0 10px}
+.timer .big{font-size:52px;font-weight:300;letter-spacing:-2px;font-feature-settings:"tnum";line-height:1.1}
+.timer .tgt{font-size:12px;color:var(--text-muted);margin-top:2px}
+.tbar{height:6px;border-radius:9999px;background:var(--bg-elevated);width:100%;margin-top:14px;position:relative}
+.tbar i{position:absolute;left:0;top:0;bottom:0;border-radius:9999px;background:var(--sec-light);max-width:100%}
+.tbar i.over{background:var(--warning)}
+.tbar .mk{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text-secondary);border-radius:2px}
+.wave{display:flex;align-items:center;justify-content:center;gap:3px;height:44px;margin:8px 0 16px}
+.wave i{display:block;width:3px;height:4px;border-radius:3px;background:var(--sec-light);opacity:.85}
+.rec{width:76px;height:76px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(239,68,68,.12);border:2px solid rgba(239,68,68,.55)}
+.rec i{display:block;width:30px;height:30px;border-radius:50%;background:var(--error);transition:border-radius 160ms var(--snappy),width 160ms,height 160ms}
+.rec.on i{width:26px;height:26px;border-radius:7px}
+.play{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:11px;padding:10px 12px;margin-bottom:12px}
+.play .pb{width:30px;height:30px;border-radius:50%;background:var(--sec-muted);color:var(--sec-light);display:flex;align-items:center;justify-content:center}
+.play .tl{font-size:13px;color:var(--text-secondary)}
+.play .tm{font-size:12px;color:var(--text-muted);font-feature-settings:"tnum";margin-left:auto}
+.beat{display:grid;grid-template-columns:74px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--border-subtle)}
+.beat.first{border-top:0;padding-top:2px}
+.beat .k{font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--sec-light);padding-top:3px}
+.beat .v{font-size:14px;line-height:1.55;color:var(--text-primary)}
+.beat .v.dimtxt{color:var(--text-secondary)}
+.num{color:var(--accent-light);font-weight:500}
+.checks{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.chk{display:flex;align-items:center;gap:11px;width:100%;min-height:50px;padding:11px 12px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-subtle);font-size:13.5px;color:var(--text-secondary)}
+.chk .bx{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-hover);flex:0 0 20px;display:flex;align-items:center;justify-content:center;color:#fff}
+.chk.on{color:var(--text-primary);border-color:rgba(13,148,136,.35);background:rgba(13,148,136,.07)}
+.chk.on .bx{background:var(--accent);border-color:var(--accent)}
+.chk .sm{font-size:11.5px;color:var(--text-muted);display:block;margin-top:2px;line-height:1.45}
+.chk .lb{flex:1;min-width:0}
+.auto{font-size:10.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--accent-light);margin-left:6px}
+.auto.bad{color:var(--warning)}
+.score{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:14px 2px 12px}
+.score .s{font-size:22px;font-weight:600;letter-spacing:-.5px;font-feature-settings:"tnum";white-space:nowrap}
+.score .s span{color:var(--text-muted);font-weight:400;font-size:15px}
+.score .m{font-size:12px;color:var(--text-muted);text-align:right;line-height:1.45}
+.fu{margin-top:12px;border-radius:12px;padding:14px 15px;background:var(--bg-elevated);border:1px dashed var(--border-hover)}
+.fu .q{font-size:15px;font-weight:500;line-height:1.4;margin:6px 0 10px;letter-spacing:-.2px}
+.pushback .fu{margin-top:8px}
+.pushback summary{list-style:none;min-height:44px;display:flex;align-items:center;font-size:14px;font-weight:500;color:var(--sec-light)}
+.pushback summary span{display:inline-flex;align-items:center;gap:8px}
+.pushback summary::-webkit-details-marker{display:none}
+.pushback details[open] summary .rv,.pushback details:not([open]) summary .hd{display:none}
+.pushback details[open] summary{margin-bottom:6px}
+.fu .go{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--sec-light);min-height:44px;width:100%}
+
+/* library */
+.search{display:flex;align-items:center;gap:9px;height:46px;border-radius:12px;background:var(--bg-input);border:1px solid var(--border-default);padding:0 12px;color:var(--text-muted)}
+.search input{flex:1;min-width:0;background:none;border:none;outline:none;color:var(--text-primary);font-size:16px}
+.search input::placeholder{color:var(--text-muted)}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(13,148,136,.2)}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;margin:0 calc(-1 * var(--gutter));padding-left:var(--gutter);padding-right:var(--gutter);scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.fchip{flex:0 0 auto;min-height:44px;padding:0 13px;border-radius:9999px;border:1px solid var(--border-default);background:var(--bg-card);font-size:12.5px;font-weight:500;color:var(--text-secondary);display:inline-flex;align-items:center;gap:5px}
+.fchip.on{background:var(--accent-muted);border-color:rgba(13,148,136,.45);color:var(--accent-light)}
+.fchip.warnon{background:var(--warning-muted);border-color:rgba(245,158,11,.4);color:var(--warning)}
+.lrow{display:flex;gap:11px;align-items:flex-start;width:100%;padding:12px 0;border-top:1px solid var(--border-subtle);min-height:56px}
+.lrow:first-child{border-top:0}
+.lrow .lt{flex:1;min-width:0}
+.lrow .lt b{display:block;font-size:14px;font-weight:500;line-height:1.35;color:var(--text-primary)}
+.lrow .lt small{display:block;font-size:11.5px;color:var(--text-muted);margin-top:4px}
+.lrow .chip{margin-top:1px}
+.srclist{display:flex;flex-direction:column;margin-top:6px}
+.srclist a,.srclist span.nolink{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 0;border-top:1px solid var(--border-subtle);font-size:13px;line-height:1.4;color:var(--text-secondary)}
+.srclist a:first-child,.srclist span.nolink:first-child{border-top:0}
+.srclist a{text-decoration:none}
+.srclist a b{color:var(--accent-light);font-weight:500}
+.kv{font-size:13.5px;line-height:1.55;color:var(--text-secondary);margin-top:8px}
+.kv b{color:var(--text-primary);font-weight:500}
+
+/* settings / sign-in */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px}
+.field input{width:100%;height:48px;border-radius:12px;background:var(--bg-input);border:1px solid var(--border-default);padding:0 13px;color:var(--text-primary);font-size:16px;outline:none}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(13,148,136,.2)}
+.msg{font-size:13px;line-height:1.5;margin:4px 0 12px;color:var(--text-secondary)}
+.msg.err{color:var(--error)}
+.signin{min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:24px 0}
+.signin .brand{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:24px}
+.signin .logo{width:56px;height:56px;border-radius:15px;font-size:30px}
+.signin .logo::after{left:10px;right:10px;bottom:8px;height:3px}
+.signin h1{font-size:28px;font-weight:600;letter-spacing:-.6px;margin-top:14px}
+.signin .tag{font-size:14px;color:var(--text-secondary);margin-top:6px;line-height:1.5}
+.testlist{margin-top:10px;font-size:12px;line-height:1.5;color:var(--text-secondary);max-height:260px;overflow:auto}
+.testlist div{padding:3px 0;border-top:1px solid var(--border-subtle)}
+.testlist .f{color:var(--error)}
+details summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:13px;color:var(--text-secondary)}
+.spinner{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--border-hover);border-top-color:var(--accent-light);animation:spin 800ms linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media (max-width:420px){ .beat{grid-template-columns:1fr;gap:4px} }
+@media (max-width:380px){
+  .hero{gap:14px}
+  .ring{width:104px;height:104px;flex-basis:104px}
+  .ring svg{width:104px;height:104px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="appbar" id="appbar"></header>
+  <main id="main" tabindex="-1"></main>
+  <nav class="tabbar" id="tabbar" aria-label="Sections" hidden></nav>
+</div>
+<div id="live" class="sr-only" role="status" aria-live="polite"></div>
+
+<!-- Pinned exact version + SRI (same pin and hash as the Perq shell). If the CDN
+     or the file changes, the browser refuses it and the app still runs from the
+     cached deck, signed-in features hidden. -->
+<script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js"
+        integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
+<script id="tape-js">
+"use strict";
+/* ==========================================================================
+   Tape shell. Generic app code only: screens, timer, grading, sync.
+   The deck (every card, prompt and source) loads at runtime, from the
+   owner-only tape_content row in Personal cloud, or from a local file in
+   dev/QA mode. Nothing deck-specific may be written into this file; a
+   self-test enforces it.
+   ========================================================================== */
+var APP_VERSION = "1.0.0";          // lockstep with VERSION in sw.js
+var TAPE_SUPABASE = {               // publishable key: safe in the page, RLS guards every row
+  url: "https://umimaxkucnugmkifenyg.supabase.co",
+  key: "sb_publishable_1wJlFgMwGiOwb7-viFNfeg_qczcRsBx"
+};
+var LS_STATE = "tape.state.v1", LS_DECK = "tape.deck.v1", LS_AUTH = "tape.auth.v1";
+var SET_TARGET = 6, DRILL_N = 10;
+var KINDS = ["concept","sayit","number","word","live"];
+var LEARNABLE = {concept:true, word:true, number:true};
+var KIND_LABEL = {concept:"Concept", sayit:"Say it", number:"Number", word:"Word", live:"Live"};
+var KIND_CHIP = {concept:"teal", sayit:"mute", number:"sec", word:"teal", live:"sec"};
+var STYLE = {
+  air:    {label:"On air", seg:"On air · 30s", lo:20, hi:30, len:"30-second answer", who:"the anchor interrupts"},
+  client: {label:"With a client", seg:"With a client · 90s", lo:60, hi:90, len:"90-second answer", who:"the client pushes back"}
+};
+
+/* ==========================================================================
+   CORE: pure functions. No DOM, no state. Everything here is self-tested.
+   ========================================================================== */
+var Core = (function(){
+  function pad(n){ return (n<10?"0":"")+n; }
+  function dayKey(d){ d=d||new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+  // Calendar-day arithmetic on YYYY-MM-DD keys, done in UTC so DST never shifts a day.
+  function dayNum(k){ var p=String(k).split("-"); return Math.round(Date.UTC(+p[0], (+p[1]||1)-1, +p[2]||1)/86400000); }
+  function daysBetween(a,b){ return dayNum(b)-dayNum(a); }
+  function addDays(k,n){ var d=new Date((dayNum(k)+n)*86400000); return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate()); }
+
+  /* Leitner: five boxes. Right moves up one, wrong goes to zero. */
+  function leitnerNext(box, ok){ box=+box||0; return ok ? Math.min(5, box+1) : 0; }
+  /* Mastered cards (box 4+) drop one box per 30 untouched days. */
+  function decayBox(box, mastAt, now){
+    if(box>=4 && mastAt){
+      var n=Math.floor((now-mastAt)/(30*86400000));
+      if(n>=1) return {box:Math.max(0, box-n), mastAt:now};
+    }
+    return {box:box, mastAt:mastAt};
+  }
+  /* Drill selection: a box-0 card is six times likelier than a box-5 card. */
+  function drillWeight(box){ return 6-Math.max(0, Math.min(5, +box||0)); }
+  function pickWeighted(n, pool, boxOf, rng){
+    rng=rng||Math.random; pool=pool.slice(); var out=[];
+    while(out.length<n && pool.length){
+      var tot=0, i;
+      for(i=0;i<pool.length;i++) tot+=drillWeight(boxOf(pool[i]));
+      var r=rng()*tot, acc=0, idx=pool.length-1;
+      for(i=0;i<pool.length;i++){ acc+=drillWeight(boxOf(pool[i])); if(r<acc){ idx=i; break; } }
+      out.push(pool.splice(idx,1)[0]);
+    }
+    return out;
+  }
+  /* Balanced sets of at most `target`, in order: 7 -> 4+3, never 6+1. */
+  function partition(ids, target){
+    if(!ids.length) return [];
+    var n=Math.ceil(ids.length/target), base=Math.floor(ids.length/n), extra=ids.length%n, out=[], p=0;
+    for(var i=0;i<n;i++){ var size=base+(i<extra?1:0); out.push(ids.slice(p,p+size)); p+=size; }
+    return out;
+  }
+  function shuffle(a, rng){ rng=rng||Math.random; a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(rng()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+  /* Staleness. recheckBy "YYYY-MM" means re-check by the end of that month. */
+  function recheckDay(r){
+    r=String(r||"");
+    if(/^\d{4}-\d{2}-\d{2}$/.test(r)) return r;
+    if(/^\d{4}-\d{2}$/.test(r)){ var y=+r.slice(0,4), m=+r.slice(5,7); var last=new Date(Date.UTC(y, m, 0)).getUTCDate(); return r+"-"+pad(last); }
+    return null;
+  }
+  function isStale(card, today){ var d=card && recheckDay(card.recheckBy); return !!d && d<today; }
+
+  /* Speak. A pass = score >= 4 AND headline passed AND follow-up headline-first AND both
+     answers were timed (a skipped recording can't pass).
+     Speak-ready = two passes 3-30 calendar days apart, the later of them <= 30 days old. */
+  function isPass(a){ return !!a && a.score>=4 && !!a.head && !!a.fu && a.sec!=null && a.fuSec!=null; }
+  function passDays(attempts){ return (attempts||[]).filter(isPass).map(function(a){ return a.d; }).sort(); }
+  function speakReady(attempts, today){
+    var days=passDays(attempts);
+    for(var j=days.length-1;j>=0;j--){
+      if(daysBetween(days[j], today)>30) break;          // older passes are older still
+      for(var i=0;i<j;i++){ var g=daysBetween(days[i], days[j]); if(g>=3 && g<=30) return true; }
+    }
+    return false;
+  }
+  /* Would a pass today make it speak-ready? True when some earlier pass is 3-30 days old. */
+  function pairsToday(attempts, today){
+    return passDays(attempts).some(function(d){ var g=daysBetween(d, today); return g>=3 && g<=30; });
+  }
+  /* Due-ness for the Speak queue. Lower rank = more due. */
+  function speakStatus(attempts, today){
+    attempts=attempts||[];
+    var passes=passDays(attempts);
+    var lastPass=passes.length?passes[passes.length-1]:null;
+    var last=attempts.length?attempts[attempts.length-1]:null;
+    var ready=speakReady(attempts, today), rank;
+    if(ready) rank = daysBetween(lastPass,today)>=23 ? 1 : 9;        // refresh before the 30-day decay
+    else if(pairsToday(attempts, today)) rank=0;                      // one more pass makes it ready
+    else if(lastPass && daysBetween(lastPass,today)<3) rank=8;        // resting: a pass needs a 3-day gap
+    else if(last) rank=2;                                             // tried, not passed yet
+    else rank=3;                                                      // never tried
+    return {ready:ready, passes:passes.length, lastPass:lastPass, last:last, rank:rank, due:rank<=3};
+  }
+  /* Every review that leaves a card mastered restarts its 30-day decay clock. */
+  function mastAtAfter(box, now){ return box>=4 ? now : null; }
+  /* Drill only uses cards that have been taught in Learn. */
+  function drillPool(cards, seen){ return (cards||[]).filter(function(c){ return !!(seen && seen[c.id]); }); }
+  /* Dev decks: only on file: or a loopback host, and only from the same origin. */
+  function devDeckUrl(loc, path){
+    var local=loc.protocol==="file:" || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(loc.hostname);
+    if(!local || !path) return null;
+    var u; try{ u=new URL(path, loc.href); }catch(e){ return null; }
+    if(loc.protocol==="file:") return u.protocol==="file:" ? u.href : null;
+    return u.origin===loc.origin ? u.href : null;
+  }
+  function isLoopback(loc){ return loc.protocol==="file:" || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(loc.hostname); }
+  /* After any content refresh, a loaded deck never leaves the app on boot/sign-in/no-content. */
+  function viewAfterRefresh(v, hasDeck){ return hasDeck && (v==="boot" || v==="signin" || v==="nocontent") ? "home" : null; }
+  function inTime(sec, style){ var s=STYLE[style]; return sec!=null && isFinite(sec) && sec>=s.lo && sec<=s.hi; }
+  function score(checks, sec, style){
+    var c=checks||{};
+    return (c.head?1:0)+(c.why?1:0)+(c.num?1:0)+(c.bridge?1:0)+((c.jargon && inTime(sec,style))?1:0);
+  }
+
+  /* Output safety: every content string goes through esc(); links must be http(s). */
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+  function safeUrl(u){ u=String(u||"").trim(); return /^https?:\/\/[^\s"'<>]+$/i.test(u) ? u : null; }
+  var NOT_ACRONYMS={US:1,ET:1,AM:1,PM:1,OK:1,TV:1};
+  function acronyms(text){
+    var seen={}, out=[];
+    (String(text||"").match(/\b[A-Z]{2,6}\b/g)||[]).forEach(function(a){ if(!NOT_ACRONYMS[a] && !seen[a]){ seen[a]=1; out.push(a); } });
+    return out;
+  }
+
+  /* Deck schema validation (the content contract in BRIEF.md). Returns a list of problems. */
+  function hasSources(x){ return !!x && Array.isArray(x.sources) && x.sources.length>0 &&
+    x.sources.every(function(s){ return s && s.name && safeUrl(s.url); }); }
+  function mcOk(q){ return !!q && !!q.q && Array.isArray(q.options) && q.options.length>=2 &&
+    q.answer===Math.floor(q.answer) && q.answer>=0 && q.answer<q.options.length; }
+  var YM=/^\d{4}-\d{2}(-\d{2})?$/;
+  /* On air, figures are often spelled out ("eight times a year"), so words count. */
+  var NUMWORD=/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion|trillion|half|halves|third|thirds|quarter|quarters|double|doubled|tripled|twice|percent)\b/i;
+  function hasFigure(t){ return /\d/.test(t) || NUMWORD.test(t); }
+  function validateDeck(deck){
+    var errs=[], ids={};
+    if(!deck || !Array.isArray(deck.chapters) || !deck.chapters.length) return ["deck has no chapters"];
+    deck.chapters.forEach(function(ch){
+      var w="chapter "+(ch && ch.chapter);
+      if(!ch || typeof ch.chapter!=="number"){ errs.push(w+": chapter number missing"); return; }
+      if(!ch.chapterTitle) errs.push(w+": chapterTitle missing");
+      if(!Array.isArray(ch.cards) || !ch.cards.length) errs.push(w+": no cards");
+      var fus=Array.isArray(ch.followUps)?ch.followUps:[];
+      if(fus.length<3) errs.push(w+": "+fus.length+" follow-ups (needs at least 3)");
+      fus.forEach(function(f,i){
+        var fw=w+" follow-up "+(i+1);
+        if(!f || !f.q) errs.push(fw+": question missing");
+        if(f && f.style && !STYLE[f.style]) errs.push(fw+": unknown style");
+        if(!f || !f.reply || !f.reply.headline || !f.reply.why || !f.reply.bridge) errs.push(fw+": reply needs headline, why and bridge");
+        if(!hasSources(f)) errs.push(fw+": no valid sources");
+      });
+      (ch.cards||[]).forEach(function(c){
+        var cw=(c && c.id) || (w+" card without id");
+        if(!c || !c.id) errs.push(cw+": id missing");
+        else if(ids[c.id]) errs.push(cw+": duplicate id"); else ids[c.id]=1;
+        if(!c) return;
+        if(KINDS.indexOf(c.kind)<0) errs.push(cw+": unknown kind '"+c.kind+"'");
+        if(!c.title) errs.push(cw+": title missing");
+        if(!hasSources(c)) errs.push(cw+": no valid sources");
+        if(c.kind==="live" && c.volatile!==true) errs.push(cw+": live cards must be volatile");
+        if(c.volatile){
+          if(!YM.test(c.asOf||"")) errs.push(cw+": volatile card needs asOf");
+          if(!YM.test(c.recheckBy||"")) errs.push(cw+": volatile card needs recheckBy");
+        }
+        if(c.kind==="sayit"){
+          ["air","client"].forEach(function(s){
+            var p=c[s];
+            if(!p){ errs.push(cw+": missing "+s+" style"); return; }
+            ["asker","q","headline","why","number","bridge"].forEach(function(f){ if(!p[f]) errs.push(cw+"."+s+": "+f+" missing"); });
+          });
+          if(c.air && c.air.number && !hasFigure(c.air.number)) errs.push(cw+".air: number part has no figure");
+          (c.rephrasings||[]).forEach(function(r,i){
+            var rw=cw+": rephrasing "+(i+1);
+            if(!r || !STYLE[r.style] || !r.q){ errs.push(rw+" needs style and q"); return; }
+            if(!r.answer) errs.push(rw+" has no answer");
+            else ["headline","why","number","bridge"].forEach(function(f){ if(!r.answer[f]) errs.push(rw+" answer: "+f+" missing"); });
+            if(r.style==="air" && r.answer && r.answer.number && !hasFigure(r.answer.number)) errs.push(rw+" answer: number part has no figure");
+            if(!hasSources(r)) errs.push(rw+" has no valid sources");
+          });
+        }
+        if(c.kind==="concept"){
+          if(!c.body || !c.why || !c.oneLine) errs.push(cw+": concept needs body, why and oneLine");
+          if(!mcOk(c.quiz)) errs.push(cw+": quiz invalid");
+        }
+        if(c.kind==="word"){
+          if(!c.def) errs.push(cw+": word needs def");
+          if(!mcOk(c.quiz)) errs.push(cw+": quiz invalid");
+        }
+        if(c.kind==="number" && !mcOk(c)) errs.push(cw+": number question invalid");
+        if(c.kind==="live" && (!c.status || !c.oneLine)) errs.push(cw+": live needs status and oneLine");
+      });
+    });
+    return errs;
+  }
+  return {pad:pad, dayKey:dayKey, daysBetween:daysBetween, addDays:addDays, leitnerNext:leitnerNext, decayBox:decayBox,
+    drillWeight:drillWeight, pickWeighted:pickWeighted, partition:partition, shuffle:shuffle, recheckDay:recheckDay,
+    isStale:isStale, isPass:isPass, speakReady:speakReady, pairsToday:pairsToday, speakStatus:speakStatus,
+    mastAtAfter:mastAtAfter, drillPool:drillPool, devDeckUrl:devDeckUrl, isLoopback:isLoopback, viewAfterRefresh:viewAfterRefresh, inTime:inTime, score:score,
+    esc:esc, safeUrl:safeUrl, acronyms:acronyms, validateDeck:validateDeck, hasSources:hasSources};
+})();
+var esc = Core.esc;
+
+/* ==========================================================================
+   DECK: normalized view of the loaded content
+   ========================================================================== */
+var DECK=null, DECK_META=null, DECK_ERRS=[], CHAPTERS=[], CARDS=[], BY_ID=Object.create(null), SAYIT=[], LEARN_CARDS=[];
+function textOf(o){
+  if(o==null) return "";
+  if(typeof o==="string") return o+" ";
+  if(Array.isArray(o)) return o.map(textOf).join("");
+  if(typeof o==="object"){ var s=""; for(var k in o){ if(k.charAt(0)!=="_" && k!=="url") s+=textOf(o[k]); } return s; }
+  return "";
+}
+function setDeck(doc, meta){
+  if(!doc || !Array.isArray(doc.chapters)) return false;
+  var d=JSON.parse(JSON.stringify(doc));
+  CHAPTERS=[]; CARDS=[]; BY_ID=Object.create(null); SAYIT=[]; LEARN_CARDS=[];
+  d.chapters.slice().sort(function(a,b){ return (a.chapter||0)-(b.chapter||0); }).forEach(function(ch){
+    var cards=(ch.cards||[]).filter(function(c){ return c && c.id && KINDS.indexOf(c.kind)>=0; });
+    var C={n:(+ch.chapter||0), title:ch.chapterTitle||("Chapter "+ch.chapter), blurb:ch.chapterBlurb||"", cards:cards, followUps:ch.followUps||[]};
+    cards.forEach(function(c){
+      c._ch=C.n; c._chTitle=C.title; c._text=textOf(c).toLowerCase();
+      if(!BY_ID[c.id]){ BY_ID[c.id]=c; CARDS.push(c); }
+      if(c.kind==="sayit") SAYIT.push(c);
+      if(LEARNABLE[c.kind]) LEARN_CARDS.push(c);
+    });
+    C.learn=cards.filter(function(c){ return LEARNABLE[c.kind] || c.kind==="live"; }).map(function(c){ return c.id; });
+    C.sets=Core.partition(C.learn, SET_TARGET);
+    CHAPTERS.push(C);
+  });
+  DECK=d; DECK_META=meta||{}; DECK_ERRS=Core.validateDeck(doc);
+  if(DECK_ERRS.length) console.warn("Tape deck: "+DECK_ERRS.length+" schema problem(s)", DECK_ERRS);
+  return true;
+}
+function chapterOf(n){ for(var i=0;i<CHAPTERS.length;i++) if(CHAPTERS[i].n===n) return CHAPTERS[i]; return null; }
+function shortTitle(t){ return String(t||"").split(/[\s,&:·]+/)[0]; }
+function readDeckCache(){ try{ var c=JSON.parse(localStorage.getItem(LS_DECK)||"null"); return c && c.doc ? c : null; }catch(e){ return null; } }
+function writeDeckCache(row){ try{ localStorage.setItem(LS_DECK, JSON.stringify({doc:row.doc, version:row.version, updated_at:row.updated_at, cachedAt:new Date().toISOString()})); }catch(e){} }
+
+/* ==========================================================================
+   STATE: progress, in localStorage only
+   ========================================================================== */
+var S=null;
+function freshState(){ return {v:1, box:{}, mastAt:{}, seen:{}, drill:[], speak:{}, days:0, lastDay:null, startDay:null, day60:null, day60Snooze:null, set:{theme:"dark", style:"air"}}; }
+function load(){
+  var raw=null; try{ raw=JSON.parse(localStorage.getItem(LS_STATE)||"null"); }catch(e){}
+  var f=freshState(); S=(raw && typeof raw==="object") ? raw : f;
+  for(var k in f){ if(S[k]===undefined) S[k]=f[k]; }
+  S.set=S.set||{}; if(S.set.theme!=="light") S.set.theme="dark"; if(!STYLE[S.set.style]) S.set.style="air";
+  if(!S.startDay){ S.startDay=Core.dayKey(); save(); }
+  applyDecay();
+}
+function save(){ try{ localStorage.setItem(LS_STATE, JSON.stringify(S)); }catch(e){} }
+function applyDecay(){
+  var now=Date.now(), changed=false;
+  for(var id in S.box){
+    var r=Core.decayBox(S.box[id], S.mastAt[id]||null, now);
+    if(r.box!==S.box[id]){ S.box[id]=r.box; if(r.box>=4) S.mastAt[id]=r.mastAt; else delete S.mastAt[id]; changed=true; }
+  }
+  if(changed) save();
+}
+function markDay(){
+  var t=Core.dayKey(); if(S.lastDay===t) return;
+  S.days=(S.lastDay && Core.daysBetween(S.lastDay,t)===1) ? S.days+1 : 1; S.lastDay=t; save();
+}
+function boxOf(id){ return S.box[id]||0; }
+function setBox(id,v,now){
+  S.box[id]=Math.max(0,Math.min(5,v));
+  var m=Core.mastAtAfter(S.box[id], now||Date.now());
+  if(m) S.mastAt[id]=m; else delete S.mastAt[id];
+}
+function learnedCount(){ return LEARN_CARDS.filter(function(c){ return boxOf(c.id)>=2; }).length; }
+function hist(id,style){ return (S.speak[id] && S.speak[id][style]) || []; }
+function isReadyCard(c, today){ return Core.speakReady(hist(c.id,"air"),today) || Core.speakReady(hist(c.id,"client"),today); }
+function readyCount(){ var t=Core.dayKey(); return SAYIT.filter(function(c){ return isReadyCard(c,t); }).length; }
+function drillAccuracy(){ var a=S.drill||[]; if(!a.length) return null; var s=0; a.forEach(function(x){ s+=x; }); return Math.round(s/a.length*100); }
+function staleCards(){ var t=Core.dayKey(); return CARDS.filter(function(c){ return Core.isStale(c,t); }); }
+function setCleared(ch,i){ var ids=ch.sets[i]||[]; return ids.length>0 && ids.every(function(id){ return !!S.seen[id]; }); }
+function chapterCleared(ch){ return ch.sets.every(function(_,i){ return setCleared(ch,i); }); }
+function learnChapters(){ return CHAPTERS.filter(function(ch){ return ch.learn.length>0; }); }
+function nextSet(){
+  var L=learnChapters();
+  for(var i=0;i<L.length;i++) for(var j=0;j<L[i].sets.length;j++) if(!setCleared(L[i],j)) return {ch:L[i], idx:j};
+  return null;
+}
+function speakQueue(style, firstId){
+  var t=Core.dayKey();
+  var list=SAYIT.map(function(c,i){ return {id:c.id, i:i, st:Core.speakStatus(hist(c.id,style), t)}; });
+  list.sort(function(a,b){
+    if(a.st.rank!==b.st.rank) return a.st.rank-b.st.rank;
+    var la=a.st.last?a.st.last.t:0, lb=b.st.last?b.st.last.t:0;
+    return la!==lb ? la-lb : a.i-b.i;
+  });
+  var due=list.filter(function(x){ return x.st.due; }).map(function(x){ return x.id; });
+  var q=due.length ? due.slice(0,5) : list.slice(0,3).map(function(x){ return x.id; });
+  if(firstId && BY_ID[firstId]){ q=q.filter(function(id){ return id!==firstId; }); q.unshift(firstId); q=q.slice(0,5); }
+  return {ids:q, extra:!due.length, dueCount:due.length};
+}
+
+/* ==========================================================================
+   CLOUD: Supabase auth + read-only content fetch
+   ========================================================================== */
+var Cloud={sb:null, session:null};
+var DEV=false, DEV_PATH=null;
+function cloudInit(){
+  if(Cloud.sb) return true;
+  if(!(window.supabase && window.supabase.createClient)) return false;
+  try{
+    // Own storage key: Perq and Closet share this origin, so the default key would
+    // make signing out of Tape sign you out of them too.
+    Cloud.sb=window.supabase.createClient(TAPE_SUPABASE.url, TAPE_SUPABASE.key,
+      {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:false, storageKey:LS_AUTH}});
+  }catch(e){ Cloud.sb=null; return false; }
+  Cloud.sb.auth.onAuthStateChange(function(ev, s){ Cloud.session=s||null; });
+  return true;
+}
+function fetchDeckRow(){
+  return Cloud.sb.from("tape_content").select("doc, version, updated_at")
+    .order("updated_at",{ascending:false}).limit(1)
+    .then(function(r){ if(r.error) throw r.error; return (r.data && r.data[0]) || null; });
+}
+var CALM={home:1, learn:1, chapter:1, library:1, card:1, settings:1, boot:1, nocontent:1, signin:1};
+function refreshDeck(user){
+  if(!Cloud.sb) return Promise.resolve();
+  return fetchDeckRow().then(function(row){
+    if(!row || !row.doc){
+      if(!DECK) go("nocontent",{error:"Signed in, but there is no content row for this account yet."});
+      else if(user) toast("No content row found. Keeping the saved copy.");
+      return;
+    }
+    var cached=readDeckCache();
+    var changed=!DECK || !cached || cached.updated_at!==row.updated_at || cached.version!==row.version;
+    writeDeckCache(row);
+    if(changed){
+      if(!setDeck(row.doc, {source:"cloud", version:row.version, updatedAt:row.updated_at})){
+        if(!DECK) go("nocontent",{error:"The content row is not a valid deck."}); return;
+      }
+      if(view==="boot" || view==="signin" || view==="nocontent") return go("home");
+      if(CALM[view]) render();
+      if(user) toast("Content updated");
+    } else {
+      DECK_META.source="cloud"; if(user) toast("Content is up to date");
+      if(view==="settings") render();
+    }
+  }).catch(function(e){
+    if(!DECK) go("nocontent",{error:"Couldn't load content: "+((e && e.message) || "network error")+"."});
+    else if(user) toast("Offline. Using the saved copy.");
+  }).then(function(){ var t=Core.viewAfterRefresh(view, !!DECK); if(t) go(t); });
+}
+function loadDevDeck(){
+  function get(p){
+    var u=Core.devDeckUrl(location, p);
+    if(!u) return Promise.reject(new Error("not same-origin"));
+    return fetch(u,{cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  var tried=[DEV_PATH];
+  return get(DEV_PATH).catch(function(){
+    if(DEV_PATH==="content/sample.json") throw new Error("none");
+    tried.push("content/sample.json"); return get("content/sample.json").then(function(d){ DEV_PATH="content/sample.json"; return d; });
+  }).then(function(doc){
+    if(!setDeck(doc,{source:"dev", path:DEV_PATH, version:doc.version, updatedAt:doc.builtAt})) throw new Error("bad deck");
+    go("home");
+  }).catch(function(){ go("deckerror",{tried:tried}); });
+}
+
+/* ==========================================================================
+   AUDIO: recorder + timer. Audio lives in memory only, never stored or sent.
+   ========================================================================== */
+var Rec={gen:0, stream:null, mr:null, chunks:[], url:{main:null, fu:null}, t0:0, tick:null, ac:null, raf:null, player:null, playerWhich:null};
+function recSupported(){ return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder); }
+function fmtSec(s){ if(s==null || !isFinite(s)) return "–:––"; s=Math.max(0,Math.round(s)); return Math.floor(s/60)+":"+Core.pad(s%60); }
+function stopStream(){ if(Rec.stream){ Rec.stream.getTracks().forEach(function(t){ try{ t.stop(); }catch(e){} }); Rec.stream=null; } }
+function stopMeter(){ if(Rec.raf){ cancelAnimationFrame(Rec.raf); Rec.raf=null; } if(Rec.ac){ try{ Rec.ac.close(); }catch(e){} Rec.ac=null; } }
+function stopTick(){ if(Rec.tick){ clearInterval(Rec.tick); Rec.tick=null; } }
+function stopPlayer(){ if(Rec.player){ try{ Rec.player.pause(); }catch(e){} Rec.player=null; Rec.playerWhich=null; } }
+function revoke(which){ if(Rec.url[which]){ URL.revokeObjectURL(Rec.url[which]); Rec.url[which]=null; } }
+function teardownAudio(){
+  Rec.gen++; stopTick(); stopMeter(); stopPlayer();
+  if(Rec.mr){ try{ Rec.mr.ondataavailable=null; Rec.mr.onstop=null; if(Rec.mr.state!=="inactive") Rec.mr.stop(); }catch(e){} Rec.mr=null; }
+  stopStream(); Rec.chunks=[]; Rec.t0=0; revoke("main"); revoke("fu");
+}
+function tickUI(){
+  var el=Rec.t0 ? (Date.now()-Rec.t0)/1000 : 0, st=STYLE[ctx.style];
+  var big=document.getElementById("tbig"), bar=document.getElementById("tbar");
+  if(big) big.textContent=fmtSec(el);
+  if(bar){ bar.style.width=Math.min(100, el/st.hi*100)+"%"; bar.className = el>st.hi ? "over" : ""; }
+}
+function startTimer(){ Rec.t0=Date.now(); stopTick(); Rec.tick=setInterval(tickUI, 250); tickUI(); }
+function startMeter(stream){
+  var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+  try{
+    var ac=new AC(), src=ac.createMediaStreamSource(stream), an=ac.createAnalyser(); an.fftSize=64; src.connect(an);
+    Rec.ac=ac; var data=new Uint8Array(an.frequencyBinCount);
+    var loop=function(){
+      an.getByteFrequencyData(data);
+      var bars=document.querySelectorAll("#wave i");
+      for(var i=0;i<bars.length;i++){ var v=data[(i+1)%data.length]/255; bars[i].style.height=Math.max(4, Math.round(v*42))+"px"; }
+      Rec.raf=requestAnimationFrame(loop);
+    };
+    loop();
+  }catch(e){}
+}
+function startAnswer(which){
+  teardownPlaybackOnly();
+  ctx.recording=true; ctx.recWhich=which; ctx.recNote=null; ctx.recLive=false;
+  var gen=Rec.gen;
+  if(!recSupported()){ ctx.recNote="unsupported"; startTimer(); return render(); }
+  ctx.recNote="waiting"; render();
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    if(gen!==Rec.gen || !ctx.recording){ stream.getTracks().forEach(function(t){ t.stop(); }); return; }
+    Rec.stream=stream; Rec.chunks=[];
+    try{ Rec.mr=new MediaRecorder(stream); }
+    catch(e){ stopStream(); ctx.recNote="unsupported"; startTimer(); return render(); }
+    Rec.mr.ondataavailable=function(e){ if(e.data && e.data.size) Rec.chunks.push(e.data); };
+    Rec.mr.start(); ctx.recLive=true; ctx.recNote=null; startTimer(); render(); startMeter(stream);
+  }).catch(function(){
+    if(gen!==Rec.gen || !ctx.recording) return;
+    ctx.recNote="denied"; startTimer(); render();
+  });
+}
+function teardownPlaybackOnly(){ stopPlayer(); }
+function stopAnswer(){
+  var which=ctx.recWhich, el=Rec.t0 ? (Date.now()-Rec.t0)/1000 : null, gen=Rec.gen;
+  stopTick(); stopMeter(); Rec.t0=0; ctx.recording=false;
+  function finish(blob){
+    if(gen!==Rec.gen) return;
+    stopStream();
+    if(blob && blob.size){ revoke(which); Rec.url[which]=URL.createObjectURL(blob); }
+    if(which==="fu"){ ctx.fuElapsed=el; ctx.phase="fureveal"; } else { ctx.elapsed=el; ctx.phase="reveal"; }
+    render(); $("main").scrollTop=0;
+  }
+  if(Rec.mr && Rec.mr.state!=="inactive"){
+    var mr=Rec.mr; Rec.mr=null;
+    mr.onstop=function(){ finish(new Blob(Rec.chunks,{type:mr.mimeType||"audio/webm"})); Rec.chunks=[]; };
+    try{ mr.stop(); }catch(e){ finish(null); }
+  } else { Rec.mr=null; finish(null); }
+}
+function togglePlay(which){
+  var url=Rec.url[which]; if(!url) return;
+  if(Rec.player && Rec.playerWhich===which){
+    if(Rec.player.paused) Rec.player.play().catch(function(){}); else Rec.player.pause();
+  } else {
+    stopPlayer(); Rec.player=new Audio(url); Rec.playerWhich=which;
+    var p=Rec.player, upd=function(){ if(Rec.player===p) syncPlayBtn(which, !p.paused && !p.ended); };
+    p.onplay=upd; p.onpause=upd; p.onended=upd;
+    p.play().catch(function(){});
+  }
+}
+function syncPlayBtn(which, playing){
+  var b=document.querySelector('[data-a="play"][data-v="'+which+'"] .pb'); if(!b) return;
+  b.innerHTML=playing ? svg(ICON.pause,12,0,true) : svg(ICON.playf,12,0,true);
+  b.parentNode.setAttribute("aria-label", (playing?"Pause":"Play")+" your recording");
+}
+
+/* ==========================================================================
+   RENDER
+   ========================================================================== */
+var ICON={
+  home:'<path d="M3 11l9-7 9 7v9H3z"/>',
+  learn:'<path d="M4 5h11a4 4 0 014 4v10H8a4 4 0 01-4-4z"/><path d="M8 9h7M8 13h5"/>',
+  drill:'<path d="M13 3L4 14h7l-1 7 9-11h-7z"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  back:'<path d="M15 18l-6-6 6-6"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  check:'<path d="M5 12l5 5 9-10"/>',
+  chev:'<path d="m9 18 6-6-6-6"/>',
+  link:'<path d="M10 14a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 10a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/>',
+  warn:'<path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  person:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+  playf:'<path d="M7 4l13 8-13 8z"/>',
+  pause:'<path d="M7 4h3v16H7zM14 4h3v16h-3z"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>'
+};
+function svg(p,sz,sw,fill){
+  return '<svg width="'+(sz||18)+'" height="'+(sz||18)+'" viewBox="0 0 24 24" aria-hidden="true" focusable="false" '+
+    (fill?'fill="currentColor" stroke="none"':'fill="none" stroke="currentColor" stroke-width="'+(sw||2)+'" stroke-linecap="round" stroke-linejoin="round"')+'>'+p+'</svg>';
+}
+var $=function(s){ return document.querySelector(s); };
+var view="boot", ctx={};
+var LIB={q:"", ch:"all", kind:"all", stale:false};
+var LAST_TESTS=null;
+var NOTAB={boot:1, signin:1, nocontent:1, deckerror:1, set:1, drill:1, speak:1};
+
+function go(v,c){
+  teardownAudio();
+  view=v; ctx=c||{};
+  var m=$("#main"); m.classList.add("anim"); render();
+  m.scrollTop=0; try{ m.focus({preventScroll:true}); }catch(e){}
+  clearTimeout(go._t); go._t=setTimeout(function(){ m.classList.remove("anim"); }, 300);
+}
+function toast(msg){
+  var old=document.querySelector(".toast"); if(old) old.remove();
+  var t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t);
+  var live=$("#live"); if(live) live.textContent=msg;
+  setTimeout(function(){ t.remove(); }, 2000);
+}
+function applyTheme(){
+  document.documentElement.setAttribute("data-theme", S.set.theme);
+  var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content", S.set.theme==="light"?"#fafaf8":"#09090b");
+}
+function render(){
+  applyTheme();
+  var bar=$("#appbar"), m=$("#main"), tabs=$("#tabbar");
+  if(view!=="boot" && view!=="signin" && view!=="deckerror" && view!=="nocontent" && !DECK) view="boot";
+  var out=SCREENS[view] ? SCREENS[view]() : SCREENS.boot();
+  bar.innerHTML=out[0]; m.innerHTML=out[1];
+  if(NOTAB[view]){ tabs.hidden=true; tabs.innerHTML=""; }
+  else { tabs.hidden=false; tabs.innerHTML=tabbar(); }
+  if(view==="speak" && ctx.recording) tickUI();
+  if(view==="speak" && Rec.player) syncPlayBtn(Rec.playerWhich, !Rec.player.paused && !Rec.player.ended);
+}
+function tabbar(){
+  var t=[["home","Home",ICON.home],["learn","Learn",ICON.learn],["drill","Drill",ICON.drill],["speak","Speak",ICON.mic],["library","Library",ICON.search]];
+  var cur = view==="chapter"||view==="setdone" ? "learn" : view==="drilldone" ? "drill" : view==="speakdone" ? "speak" : view==="card" ? "library" : view==="settings" ? "home" : view;
+  return t.map(function(x){
+    var on=cur===x[0];
+    return '<button class="tab'+(on?' on':'')+'" data-a="tab" data-v="'+x[0]+'"'+(on?' aria-current="page"':'')+'>'+svg(x[2],20)+x[1]+'</button>';
+  }).join("");
+}
+function wordmark(){ return '<div class="wordmark"><div class="logo" aria-hidden="true">T</div><h1>Tape</h1></div>'; }
+function barBack(title, act, v, right){
+  return '<button class="icobtn" data-a="'+(act||"go")+'"'+(v?' data-v="'+esc(v)+'"':'')+' aria-label="Back">'+svg(ICON.back,16,2.4)+'</button>'+
+    '<div class="bartitle">'+esc(title)+'</div>'+(right?'<div class="rt">'+right+'</div>':'');
+}
+function barClose(title, right){
+  return '<button class="icobtn" data-a="quit" aria-label="Close">'+svg(ICON.x,16,2.2)+'</button>'+
+    '<div class="bartitle">'+esc(title)+'</div>'+(right?'<div class="rt">'+right+'</div>':'');
+}
+function barTitle(t, right){ return '<div class="bartitle big">'+esc(t)+'</div>'+(right?'<div class="rt"><span class="micro">'+esc(right)+'</span></div>':''); }
+
+/* ---- formatting helpers ---- */
+var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fmtDate(s){
+  s=String(s||""); var m;
+  if((m=s.match(/^(\d{4})-(\d{2})-(\d{2})/))) return MON[+m[2]-1]+" "+(+m[3])+" "+m[1];
+  if((m=s.match(/^(\d{4})-(\d{2})$/))) return MON[+m[2]-1]+" "+m[1];
+  return s;
+}
+function asOfChip(c){
+  if(!c || !c.asOf) return "";
+  return Core.isStale(c, Core.dayKey())
+    ? '<span class="chip warn">'+svg(ICON.warn,11,2.4)+'Re-check due · as of '+esc(fmtDate(c.asOf))+'</span>'
+    : '<span class="chip mute">As of '+esc(fmtDate(c.asOf))+'</span>';
+}
+function srcInline(list){
+  return (list||[]).map(function(s){
+    var t=esc(s.name)+(s.date?", "+esc(fmtDate(s.date)):""), u=Core.safeUrl(s.url);
+    return u ? '<a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">'+t+'</a>' : t;
+  }).join(" · ");
+}
+function srcLine(c, extra){
+  var list=((c && c.sources)||[]).concat(extra||[]);
+  var chip=asOfChip(c);
+  if(!list.length && !chip) return "";
+  return '<div class="src">'+svg(ICON.link,12,2)+'<span>'+chip+srcInline(list)+'</span></div>';
+}
+function quoteText(s){ return "“"+esc(s)+"”"; }
+function hiNum(raw){
+  // Highlight figures in a model-answer number beat. Split the RAW text, escape each piece.
+  // Bare years are dates, not the number, so they stay plain.
+  var parts=String(raw||"").split(/(~?\$?\d(?:[\d.,]*\d)?(?:\s?(?:%|percent|trillion|billion|million|bn|tn)\b|%)?)/);
+  return parts.map(function(p,i){ return (i%2 && !/^(19|20)\d\d$/.test(p)) ? '<span class="num">'+esc(p)+'</span>' : esc(p); }).join("");
+}
+function splitAsker(a){ var p=String(a||"").split(" · "); return {n:p[0], r:p.slice(1).join(" · ")}; }
+function whoBlock(asker){
+  var w=splitAsker(asker);
+  return '<div class="who"><div class="avatar">'+svg(ICON.person,16)+'</div><div><div class="n">'+esc(w.n)+'</div>'+(w.r?'<div class="r">'+esc(w.r)+'</div>':'')+'</div></div>';
+}
+function kindChip(k){ return '<span class="chip '+KIND_CHIP[k]+'">'+esc(KIND_LABEL[k]||k)+'</span>'; }
+
+/* ---- teach cards, one renderer per kind (match the mockup) ---- */
+function teach(c){
+  if(c.kind==="concept"){
+    var n=c.number||{};
+    return kindChip("concept")+
+      '<h2 class="h-title">'+esc(c.title)+'</h2>'+
+      '<p class="body">'+esc(c.body)+'</p>'+
+      '<div class="card" style="margin-top:14px"><div class="lbl">Why it matters</div><div class="body">'+esc(c.why)+'</div></div>'+
+      (n.value?'<div class="card"><div class="lbl">Number to know</div><div class="body"><b class="bignum">'+esc(n.value)+'</b>'+esc(n.note)+'</div></div>':'')+
+      (c.whoPays?'<div class="card whopays"><div class="lbl sec">Who pays for this</div><div class="body">'+esc(c.whoPays)+'</div></div>':'')+
+      (c.oneLine?'<div class="card"><div class="lbl">Say it in one line</div><div class="body"><b>'+quoteText(c.oneLine)+'</b></div></div>':'')+
+      srcLine(c);
+  }
+  if(c.kind==="word"){
+    return '<div class="tile">'+kindChip("word")+'<h4>'+esc(c.title)+'</h4><p>'+esc(c.def)+'</p>'+
+      (c.sentence?'<div class="eg"><b>In a sentence:</b> '+quoteText(c.sentence)+'</div>':'')+
+      (c.trap?'<div class="eg"><b>The trap:</b> '+esc(c.trap)+'</div>':'')+srcLine(c)+'</div>';
+  }
+  if(c.kind==="number"){
+    var ans=(c.options||[])[c.answer];
+    return kindChip("number")+
+      '<h2 class="h-title">'+esc(c.q || c.title)+'</h2>'+
+      '<div class="card"><div class="lbl">'+esc(c.title)+'</div><div class="body"><b class="bignum">'+esc(ans)+'</b>'+esc(c.note)+'</div></div>'+
+      '<div class="card"><div class="lbl">How to say it</div><div class="body"><b>'+quoteText(c.say)+'</b></div></div>'+
+      srcLine(c);
+  }
+  if(c.kind==="live") return liveTeach(c, chapterOf(c._ch));
+  if(c.kind==="sayit") return sayitDetail(c);
+  return "";
+}
+function liveTeach(c, ch){
+  return '<div class="tile"><div class="chiprow">'+kindChip("live")+asOfChip(c)+'</div><h4>'+esc(c.title)+'</h4><p>'+esc(c.status)+'</p>'+
+    (c.debate?'<div class="eg"><b>The debate:</b> '+esc(c.debate)+'</div>':'')+
+    (c.oneLine?'<div class="eg"><b>Say it in one line (attributed):</b> '+quoteText(c.oneLine)+'</div>':'')+
+    '<div class="src">'+svg(ICON.link,12,2)+'<span>'+srcInline(c.sources)+'</span></div></div>'+
+    pushbackBlock(ch && ch.followUps);
+}
+/* Live chapters may have no Say it cards, so their follow-up pool surfaces here instead. */
+function pushbackBlock(fus){
+  fus=(fus||[]).filter(function(f){ return f && f.q; });
+  if(!fus.length) return "";
+  return '<div class="pushback"><div class="lbl sec" style="margin:16px 2px 0">The pushback you\'ll get</div>'+fus.map(function(f){
+    var r=f.reply||{};
+    return '<div class="fu"><div class="lbl sec" style="margin:0">'+esc(f.asker||(STYLE[f.style]||{}).who||"Pushback")+'</div>'+
+      '<div class="q">'+quoteText(f.q)+'</div>'+
+      '<details><summary><span class="rv">'+svg(ICON.chev,14,2)+'Tap to reveal the reply</span><span class="hd">'+svg(ICON.x,13,2)+'Hide the reply</span></summary>'+
+      beats({headline:r.headline, why:r.why, bridge:r.bridge}, f.style||"air", false)+
+      ((f.sources && f.sources.length)?'<div class="src">'+svg(ICON.link,12,2)+'<span>'+srcInline(f.sources)+'</span></div>':'')+
+      '</details></div>';
+  }).join("")+'</div>';
+}
+function beats(p, style, withDelivery){
+  var st=STYLE[style];
+  var h='<div class="beat first"><div class="k">Headline</div><div class="v">'+esc(p.headline)+'</div></div>'+
+    '<div class="beat"><div class="k">Why</div><div class="v">'+esc(p.why)+'</div></div>'+
+    (p.number!==undefined?'<div class="beat"><div class="k">Number</div><div class="v">'+hiNum(p.number)+'</div></div>':'')+
+    '<div class="beat"><div class="k">Bridge</div><div class="v">'+esc(p.bridge)+'</div></div>';
+  if(withDelivery) h+='<div class="beat"><div class="k">Delivery</div><div class="v dimtxt">'+esc(deliveryText(p, style))+'</div></div>';
+  return h;
+}
+function deliveryText(p, style){
+  var st=STYLE[style], ac=Core.acronyms([p.headline,p.why,p.number,p.bridge].join(" "));
+  return st.lo+"–"+st.hi+" seconds. Spell out every acronym the first time you use it"+(ac.length?" ("+ac.join(", ")+")":"")+".";
+}
+function sayitDetail(c){
+  var t=Core.dayKey();
+  var h='<div class="chiprow">'+kindChip("sayit")+(c.budgetTrigger?'<span class="chip sec">Budget trigger</span>':'')+asOfChip(c)+'</div>'+
+    '<h2 class="h-title">'+esc(c.title)+'</h2>';
+  ["air","client"].forEach(function(s){
+    var p=c[s]; if(!p) return;
+    var st=Core.speakStatus(hist(c.id,s), t);
+    h+='<div class="card"><div class="lbl sec">'+esc(STYLE[s].label)+' · '+esc(STYLE[s].lo+"–"+STYLE[s].hi)+' s</div>'+
+      whoBlock(p.asker)+'<div class="h-q" style="font-size:16px;margin-bottom:10px">'+quoteText(p.q)+'</div>'+beats(p,s,true)+
+      '<div class="kv">'+(st.ready?'<b style="color:var(--success)">Speak-ready</b>':'<b>'+st.passes+' pass'+(st.passes===1?'':'es')+'</b>')+
+      (st.last?' · last graded '+st.last.score+' / 5':' · not tried yet')+'</div>'+
+      '<div style="margin-top:10px"><button class="btn ghost" data-a="practice" data-v="'+esc(c.id)+'|'+s+'">'+svg(ICON.mic,16)+'Practice '+esc(STYLE[s].label.toLowerCase())+'</button></div></div>';
+  });
+  if(c.rephrasings && c.rephrasings.length){
+    h+='<div class="pushback"><div class="lbl sec" style="margin:16px 2px 0">Rephrasings · a different listener or angle</div>'+c.rephrasings.map(function(r){
+      var a=r.answer||{};
+      return '<div class="fu"><div class="lbl sec" style="margin:0">'+esc((STYLE[r.style]||{}).label||r.style)+(r.asker?' · '+esc(r.asker):'')+'</div>'+
+        '<div class="q">'+quoteText(r.q)+'</div>'+
+        (r.answer?'<details><summary><span class="rv">'+svg(ICON.chev,14,2)+'Show the model answer</span><span class="hd">'+svg(ICON.x,13,2)+'Hide the model answer</span></summary>'+
+          beats(a, STYLE[r.style]?r.style:"air", true)+srcList(null, r.sources)+'</details>':'')+'</div>';
+    }).join("")+'</div>';
+  }
+  return h;
+}
+
+/* ---- screens: each returns [appbarHTML, mainHTML] ---- */
+var SCREENS={};
+SCREENS.boot=function(){ return ["", '<div class="empty" style="padding-top:30vh"><div class="spinner" aria-hidden="true"></div><p style="margin-top:14px">Loading content…</p></div>']; };
+
+SCREENS.signin=function(){
+  var offline=!(window.supabase && window.supabase.createClient);
+  return ["", '<div class="signin fade">'+
+    '<div class="brand"><div class="logo" aria-hidden="true">T</div><h1>Tape</h1><p class="tag">Talk about markets the way they do on air.</p></div>'+
+    '<form class="card" id="signin-form" novalidate>'+
+      (offline?'<p class="msg err">You\'re offline, so sign-in can\'t reach the server. Connect once to sign in; after that Tape works offline.</p>':'')+
+      '<div class="field"><label for="si-email">Email</label><input id="si-email" name="email" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" required></div>'+
+      '<div class="field"><label for="si-pw">Password</label><input id="si-pw" name="password" type="password" autocomplete="current-password" required></div>'+
+      '<p class="msg'+(ctx.err?' err':'')+'" id="si-msg" role="alert">'+esc(ctx.err||"")+'</p>'+
+      '<button class="btn primary" type="submit" id="si-go"'+(offline?' disabled':'')+'>'+(ctx.busy?"Signing in…":"Sign in")+'</button>'+
+    '</form>'+
+    (DECK?'<div class="stack"><button class="btn ghost" data-a="go" data-v="settings">Back</button></div>':'')+
+    '<p class="hint" style="margin-top:14px">Same account as Perq and Closet. Your content is private to this account, and after the first sign-in it\'s cached on this device so Tape works offline.</p>'+
+  '</div>'];
+};
+SCREENS.nocontent=function(){
+  return ["", '<div class="signin fade"><div class="brand"><div class="logo" aria-hidden="true">T</div><h1>Tape</h1></div>'+
+    '<div class="card"><p class="body">'+esc(ctx.error||"No content yet.")+'</p>'+
+    '<div class="stack"><button class="btn primary" data-a="retry">Try again</button><button class="btn ghost" data-a="signout">Sign out</button></div></div></div>'];
+};
+SCREENS.deckerror=function(){
+  return ["", '<div class="signin fade"><div class="brand"><div class="logo" aria-hidden="true">T</div><h1>Tape · dev mode</h1></div>'+
+    '<div class="card"><p class="body">Couldn\'t load a deck from <b>'+(ctx.tried||[]).map(esc).join("</b> or <b>")+'</b> (dev decks must be same-origin). Browsers block fetch on file:// pages; serve the folder locally and open <b>index.html?deck=content/sample.json</b>, or pick a deck file here.</p>'+
+    '<div class="stack"><label class="btn primary" for="deckfile">Choose a deck JSON file</label><input id="deckfile" type="file" accept="application/json,.json" class="sr-only"></div></div></div>'];
+};
+
+SCREENS.home=function(){
+  var today=Core.dayKey(), total=SAYIT.length, ready=readyCount();
+  var lc=learnedCount(), lt=LEARN_CARDS.length, acc=drillAccuracy();
+  var C=2*Math.PI*50, pHi=total?ready/total:0, pDim=lt?lc/lt:0;
+  var dayN=Core.daysBetween(S.startDay, today)+1;
+  var wd=new Date().toLocaleDateString("en-US",{weekday:"long"});
+  var style=S.set.style, q=speakQueue(style), top=q.ids.length?BY_ID[q.ids[0]]:null;
+  var nx=nextSet(), stale=staleCards();
+  var h='<div class="fade"><div class="hello">'+esc(wd)+' · day '+dayN+'</div>'+
+   '<div class="hero">'+
+     '<div class="ring" role="img" aria-label="'+ready+' of '+total+' prompts speak-ready; '+lc+' of '+lt+' cards learned">'+
+       '<svg viewBox="0 0 118 118" width="118" height="118" aria-hidden="true">'+
+         '<circle cx="59" cy="59" r="50" fill="none" stroke="var(--ring-track)" stroke-width="9"/>'+
+         '<circle cx="59" cy="59" r="50" fill="none" stroke="var(--ring-dim)" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+(C*(1-pDim)).toFixed(1)+'" transform="rotate(-90 59 59)"'+(pDim?'':' visibility="hidden"')+'/>'+
+         '<circle cx="59" cy="59" r="50" fill="none" stroke="var(--ring-hi)" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+(C*(1-pHi)).toFixed(1)+'" transform="rotate(-90 59 59)"'+(pHi?'':' visibility="hidden"')+'/>'+
+       '</svg><div class="c"><div class="n">'+ready+'</div><div class="of">of '+total+'<br>speak-ready</div></div></div>'+
+     '<div class="stats">'+
+       '<div class="stat">Cards learned <b>'+lc+' / '+lt+'</b></div>'+
+       '<div class="stat">Drill accuracy <b>'+(acc==null?"—":acc+"%")+'</b></div>'+
+       '<div class="stat">Streak <b>'+S.days+' day'+(S.days===1?"":"s")+'</b></div>'+
+     '</div></div>';
+  if(dayN>=60 && !S.day60 && !(S.day60Snooze && S.day60Snooze>today)){
+    h+='<div class="checkin"><span class="chip teal">Day '+dayN+' · real-world check</span>'+
+      '<p>Give a 5-minute market-structure talk to your team, or record a mock TV hit and play it back. It\'s the only test of whether the score predicts real fluency.</p>'+
+      '<div class="btnrow" style="margin-top:12px"><button class="btn primary" data-a="day60" data-v="done">Done it</button><button class="btn ghost" data-a="day60" data-v="later">Next week</button></div></div>';
+  }
+  if(top){
+    var last=hist(top.id,style).slice(-1)[0];
+    h+='<button class="today" data-a="speakcard" data-v="'+esc(top.id)+'" style="margin-top:4px" aria-label="'+esc("Today's prompt, "+STYLE[style].label.toLowerCase()+": "+((top[style]&&top[style].q)||"")+". "+(last?"Last graded "+last.score+" of 5.":"Not tried yet."))+'">'+
+      '<span class="chiprow"><span class="chip sec">Today · '+esc(STYLE[style].label.toLowerCase())+'</span><span class="chip mute">'+esc(shortTitle(top._chTitle))+'</span></span>'+
+      '<span class="q" style="display:block">'+quoteText(top[style] && top[style].q)+'</span>'+
+      '<span class="meta">'+svg(ICON.clock,13)+esc(STYLE[style].len)+' · '+(last?'last graded '+last.score+' / 5':'not tried yet')+'</span></button>';
+  }
+  var dpool=drillCards(), drillWeak=dpool.filter(function(c){ return boxOf(c.id)<2; }).length;
+  h+='<div class="modes">'+
+    modeTile("learn","",ICON.learn,"Learn", nx ? "Ch "+nx.ch.n+" · "+shortTitle(nx.ch.title)+", set "+(nx.idx+1)+" of "+nx.ch.sets.length : "All chapters cleared")+
+    modeTile("drill","",ICON.drill,"Drill", dpool.length ? Math.min(DRILL_N,dpool.length)+" reps"+(drillWeak?" · "+drillWeak+" to firm up":"") : "Clear a Learn set first")+
+    modeTile("speak","speak",ICON.mic,"Speak", q.dueCount ? q.dueCount+" prompt"+(q.dueCount===1?"":"s")+" due" : (total?"Nothing due · practice anyway":"No prompts yet"))+
+    modeTile("library","",ICON.search,"Library", CARDS.length+" cards · search")+
+  '</div>';
+  if(stale.length){
+    h+='<button class="stale" data-a="showstale">'+svg(ICON.warn,16,2)+'<span><b>Going stale:</b> '+stale.length+' card'+(stale.length===1?' is':'s are')+' past '+(stale.length===1?'its':'their')+' re-check date. Tap to see which.</span></button>';
+  }
+  return [wordmark()+'<div class="rt"><button class="icobtn" data-a="go" data-v="settings" aria-label="Settings">'+svg(ICON.gear,17,1.8)+'</button></div>', h+'</div>'];
+};
+function modeTile(tab, cls, icon, name, sub){
+  return '<button class="mode '+cls+'" data-a="tab" data-v="'+tab+'" aria-label="'+esc(name+": "+sub)+'"><span class="ic">'+svg(icon,16)+'</span><span class="nm">'+esc(name)+'</span><span class="ds">'+esc(sub)+'</span></button>';
+}
+
+/* ---- LEARN ---- */
+SCREENS.learn=function(){
+  var L=learnChapters(), nx=nextSet();
+  var h='<div class="fade">';
+  if(!L.length) h+='<div class="empty">No learnable cards in this deck yet.</div>';
+  L.forEach(function(ch){
+    var cleared=ch.sets.filter(function(_,i){ return setCleared(ch,i); }).length, done=cleared===ch.sets.length;
+    var isNext=nx && nx.ch===ch, pct=Math.round(cleared/ch.sets.length*100);
+    var nl=ch.cards.filter(function(c){ return LEARNABLE[c.kind]; }).length, nlive=ch.learn.length-nl;
+    h+='<button class="chap'+(done?' done':isNext?' now':'')+'" data-a="chapter" data-v="'+ch.n+'">'+
+      '<span class="cn">'+(done?svg(ICON.check,14,2.6):ch.n)+'</span>'+
+      '<span class="ct"><span class="t">'+esc(ch.title)+'</span>'+
+      '<span class="m">'+cleared+' of '+ch.sets.length+' set'+(ch.sets.length===1?'':'s')+' · '+(nl?nl+' to learn':'')+(nl&&nlive?' · ':'')+(nlive?nlive+' live, read only':'')+'</span>'+
+      '<span class="minibar"><i style="width:'+pct+'%"></i></span></span>'+
+      (pct>0 && !done?'<span class="pct">'+pct+'%</span>':'')+svg(ICON.chev,16,1.8)+'</button>';
+  });
+  if(nx) h+='<div class="stack"><button class="btn primary" data-a="startset" data-v="'+nx.ch.n+':'+nx.idx+'">Continue · Ch '+nx.ch.n+', set '+(nx.idx+1)+'</button></div>';
+  h+='<p class="hint">Six cards per set: taught first, then tested. A miss is re-taught and comes back, so a set can\'t close with a gap. Clearing a set moves its cards into Drill.</p>';
+  return [barTitle("Learn", learnedCount()+" / "+LEARN_CARDS.length+" learned"), h+'</div>'];
+};
+SCREENS.chapter=function(){
+  var ch=chapterOf(ctx.n); if(!ch) return SCREENS.learn();
+  var pick=ctx.pick!=null?ctx.pick:(function(){ for(var i=0;i<ch.sets.length;i++) if(!setCleared(ch,i)) return i; return 0; })();
+  var h='<div class="fade"><div class="card"><div class="micro">Chapter '+ch.n+'</div>'+
+    (ch.blurb?'<p class="body" style="margin-top:6px">'+esc(ch.blurb)+'</p>':'')+
+    '<div class="sets" role="group" aria-label="Sets">';
+  ch.sets.forEach(function(ids,i){
+    var cl=setCleared(ch,i);
+    h+='<button class="setchip'+(cl?' done':i===pick?' now':'')+'" data-a="pickset" data-v="'+i+'" aria-pressed="'+(i===pick)+'" aria-label="Set '+(i+1)+(cl?', cleared':'')+'">'+(i+1)+'<small>'+(cl?'done':ids.length+' cards')+'</small></button>';
+  });
+  h+='</div></div><div class="card" style="margin-top:12px"><div class="micro" style="margin-bottom:6px">Set '+(pick+1)+'</div>';
+  (ch.sets[pick]||[]).forEach(function(id){
+    var c=BY_ID[id], b=boxOf(id), col=c.kind==="live"?(S.seen[id]?"var(--success)":"var(--chip-mute)"):b>=4?"var(--success)":b>=2?"var(--accent-light)":"var(--chip-mute)";
+    h+='<div class="irow"><span class="mdot" style="background:'+col+'"></span><span class="tt">'+esc(c.title)+'</span>'+kindChip(c.kind)+'</div>';
+  });
+  h+='</div><div class="stack"><button class="btn primary" data-a="startset" data-v="'+ch.n+':'+pick+'">'+(setCleared(ch,pick)?"Redo set ":"Start set ")+(pick+1)+'</button></div></div>';
+  return [barBack("Ch "+ch.n+" · "+ch.title,"go","learn"), h];
+};
+function mcFor(c){
+  if(c.kind==="number") return {q:c.q, opts:(c.options||[]).map(function(t,i){ return {text:t, ok:i===c.answer}; })};
+  var z=c.quiz||{};
+  return {q:z.q, opts:Core.shuffle((z.options||[]).map(function(t,i){ return {text:t, ok:i===z.answer}; }))};
+}
+function startSet(n, idx){
+  var ch=chapterOf(n); if(!ch) return;
+  var ids=ch.sets[idx]||[];
+  go("set",{n:n, idx:idx, ids:ids, tested:ids.filter(function(id){ return LEARNABLE[BY_ID[id].kind]; }),
+    phase:"teach", i:0, queue:[], mc:null, answered:false, pick:null, ok:false, misses:0});
+}
+SCREENS.set=function(){
+  var ch=chapterOf(ctx.n), n=ctx.ids.length, h='<div class="fade">';
+  var label="Ch "+ch.n+" · "+shortTitle(ch.title)+" · set "+(ctx.idx+1);
+  if(ctx.phase==="teach"){
+    var c=BY_ID[ctx.ids[ctx.i]];
+    h+='<div class="hud"><div class="pips">'+ctx.ids.map(function(_,i){ return '<i class="'+(i<ctx.i?'d':i===ctx.i?'c':'')+'"></i>'; }).join("")+'</div></div>'+teach(c);
+    var last=ctx.i>=n-1;
+    h+='<div class="stack"><button class="btn primary" data-a="learned">'+(last?(ctx.tested.length?"Now test them":"Done"):"Got it")+'</button></div>'+
+      '<p class="hint">'+(last?(ctx.tested.length?"All "+n+" seen. Next, the same "+ctx.tested.length+" as questions.":"Live cards are read, not tested."):(n-1-ctx.i)+" more, then the test.")+'</p>';
+    return [barClose(label+" · card "+(ctx.i+1)+" of "+n), h+'</div>'];
+  }
+  if(ctx.phase==="reteach"){
+    h+='<div class="hud"><span class="chip warn">Back to this one</span></div>'+teach(BY_ID[ctx.queue[ctx.queue.length-1]])+
+      '<div class="stack"><button class="btn primary" data-a="retaught">Try it again later in the set</button></div>';
+    return [barClose(label+" · re-teach"), h+'</div>'];
+  }
+  var qc=BY_ID[ctx.queue[0]], mc=ctx.mc, done=ctx.tested.length-ctx.queue.length;
+  h+='<div class="hud"><div class="pips">'+ctx.tested.map(function(_,i){ return '<i class="'+(i<done?'d':i===done?'c':'')+'"></i>'; }).join("")+'</div></div>'+
+    kindChip(qc.kind)+'<div class="h-q" style="margin-top:10px">'+esc(mc.q)+'</div>'+optList(mc,"setopt");
+  if(ctx.answered){
+    var why=qc.kind==="number"?qc.say:(qc.quiz||{}).why;
+    h+= ctx.ok
+      ? '<div class="okbox"><b>Locked in</b>'+esc(why)+'</div><div class="stack"><button class="btn primary" data-a="setnext">'+(ctx.queue.length<=1?"Finish set":"Next")+'</button></div>'
+      : '<div class="requeue"><b>Not quite. This one comes back.</b>You\'ll see it taught again, then asked again later in the set.</div><div class="stack"><button class="btn primary" data-a="setnext">Show me again</button></div>';
+  }
+  return [barClose(label+" · test "+Math.min(done+1,ctx.tested.length)+" of "+ctx.tested.length), h+'</div>'];
+};
+function optList(mc, act){
+  var h='<div class="opts">';
+  mc.opts.forEach(function(o,i){
+    var cls="opt", tag="";
+    if(ctx.answered){
+      if(o.ok){ cls+=" ok"; tag='<span class="tag" style="color:var(--success)">Correct</span>'; }
+      else if(ctx.pick===i){ cls+=" no"; tag='<span class="tag" style="color:var(--error)">Your pick</span>'; }
+      else cls+=" dim";
+    }
+    h+='<button class="'+cls+'" data-a="'+act+'" data-v="'+i+'"'+(ctx.answered?' aria-disabled="true"':'')+'><span class="k">'+String.fromCharCode(65+i)+'</span><span>'+esc(o.text)+'</span>'+tag+'</button>';
+  });
+  return h+'</div>';
+}
+function finishSet(){
+  var ch=chapterOf(ctx.n), t=Core.dayKey();
+  ctx.ids.forEach(function(id){ S.seen[id]=t; if(LEARNABLE[BY_ID[id].kind]) setBox(id, Math.max(boxOf(id),2)); });
+  markDay(); save();
+  var nx=nextSet();
+  go("setdone",{n:ctx.n, idx:ctx.idx, count:ctx.ids.length, tested:ctx.tested.length, misses:ctx.misses, next:nx});
+}
+SCREENS.setdone=function(){
+  var ch=chapterOf(ctx.n);
+  var h='<div class="fade"><div class="bigscore"><div class="v">'+svg(ICON.check,44,2.4).replace('<svg','<svg style="margin:0 auto;color:var(--success)"')+'</div>'+
+    '<p><b style="color:var(--text-primary)">Set '+(ctx.idx+1)+' of Ch '+ch.n+' cleared.</b><br>'+ctx.count+' card'+(ctx.count===1?'':'s')+(ctx.tested?', '+ctx.tested+' now in Drill':'')+(ctx.misses?' · '+ctx.misses+' miss'+(ctx.misses===1?'':'es')+' re-taught':' · no misses')+'.</p></div><div class="stack">'+
+    (ctx.next?'<button class="btn primary" data-a="startset" data-v="'+ctx.next.ch.n+':'+ctx.next.idx+'">Next: Ch '+ctx.next.ch.n+', set '+(ctx.next.idx+1)+'</button>':'<div class="card"><p class="body">Every chapter is cleared. Drill keeps it sharp, and Speak is the score.</p></div>')+
+    '<button class="btn ghost" data-a="go" data-v="learn">Back to chapters</button></div></div>';
+  return [barTitle("Learn"), h];
+};
+
+/* ---- DRILL ---- */
+function drillCards(){ return Core.drillPool(LEARN_CARDS, S.seen); }
+function startDrill(){
+  var pool=drillCards();
+  if(!pool.length){ return go("drilldone",{empty:true}); }
+  var picked=Core.pickWeighted(Math.min(DRILL_N, pool.length), pool, function(c){ return boxOf(c.id); });
+  go("drill",{cards:picked, i:0, correct:0, answered:false, pick:null, mc:mcFor(picked[0]), log:[]});
+}
+SCREENS.drill=function(){
+  var c=ctx.cards[ctx.i], mc=ctx.mc, n=ctx.cards.length;
+  var h='<div class="fade"><div class="hud"><div class="pips">'+ctx.cards.map(function(_,i){ return '<i class="'+(i<ctx.i?(ctx.log[i]?'d':'x'):i===ctx.i?'c':'')+'"></i>'; }).join("")+'</div></div>'+
+    '<div class="chiprow">'+kindChip(c.kind)+'<span class="chip mute">Ch '+c._ch+'</span></div>'+
+    '<div class="h-q" style="margin-top:10px">'+esc(mc.q)+'</div>'+optList(mc,"drillopt");
+  if(ctx.answered){
+    if(c.kind==="number"){
+      h+='<div class="card" style="margin-top:14px"><div class="lbl">How to say it</div><div class="body"><b>'+quoteText(c.say)+'</b>'+(c.note?' '+esc(c.note):'')+'</div>'+srcLine(c)+'</div>';
+    } else {
+      var z=c.quiz||{};
+      h+='<div class="card" style="margin-top:14px"><div class="lbl">Why</div><div class="body">'+esc(z.why)+'</div>'+
+        (c.kind==="concept"&&c.oneLine?'<div class="lbl" style="margin-top:12px">Say it in one line</div><div class="body"><b>'+quoteText(c.oneLine)+'</b></div>':'')+
+        (c.kind==="word"&&c.sentence?'<div class="lbl" style="margin-top:12px">In a sentence</div><div class="body">'+quoteText(c.sentence)+'</div>':'')+
+        srcLine(c)+'</div>';
+    }
+    h+='<div class="stack"><button class="btn primary" data-a="drillnext">'+(ctx.i>=n-1?"See results":"Next")+'</button></div>';
+  }
+  return [barClose("Drill · "+(ctx.i+1)+" of "+n), h+'</div>'];
+};
+function answerDrill(i){
+  if(ctx.answered) return;
+  var c=ctx.cards[ctx.i], ok=!!(ctx.mc.opts[i] && ctx.mc.opts[i].ok);
+  ctx.answered=true; ctx.pick=i; ctx.log[ctx.i]=ok?1:0; if(ok) ctx.correct++;
+  setBox(c.id, Core.leitnerNext(boxOf(c.id), ok));
+  S.drill=(S.drill||[]).concat([ok?1:0]).slice(-100);
+  markDay(); save(); render();
+  var live=$("#live"); if(live) live.textContent=ok?"Correct":"Not quite";
+}
+SCREENS.drilldone=function(){
+  if(ctx.empty) return [barTitle("Drill"), '<div class="fade"><div class="empty">Clear a Learn set first. Drill only uses cards you\'ve been taught.</div>'+
+    '<div class="stack"><button class="btn primary" data-a="tab" data-v="learn">Go to Learn</button></div></div>'];
+  var acc=drillAccuracy();
+  return [barTitle("Drill"), '<div class="fade"><div class="bigscore"><div class="v">'+ctx.correct+' <span>/ '+ctx.total+'</span></div>'+
+    '<p>Rolling drill accuracy '+(acc==null?"—":acc+"%")+'. Misses went back to box zero, so they come up more often.</p></div>'+
+    '<div class="stack"><button class="btn primary" data-a="tab" data-v="drill">Another 10</button><button class="btn ghost" data-a="tab" data-v="home">Home</button></div></div>'];
+};
+
+/* ---- SPEAK ---- */
+/* A rephrasing is a different listener, so it brings its own model answer and sources.
+   Attempts still count toward the parent card and style. */
+function pickPrompt(c, style, rng){
+  var p=c[style]||{}, opts=[{asker:p.asker, q:p.q, orig:true, answer:p, sources:c.sources||[]}];
+  (c.rephrasings||[]).forEach(function(r){
+    if(r && r.style===style && r.q && r.answer) opts.push({asker:r.asker||p.asker, q:r.q, answer:r.answer, sources:r.sources||[]});
+  });
+  return opts[Math.floor((rng||Math.random)()*opts.length)];
+}
+function srcList(c, list){
+  var chip=asOfChip(c);
+  if(!(list && list.length) && !chip) return "";
+  return '<div class="src">'+svg(ICON.link,12,2)+'<span>'+chip+srcInline(list)+'</span></div>';
+}
+function replyToggle(){ return '<summary><span class="rv">'+svg(ICON.chev,14,2)+'Tap to reveal the reply</span><span class="hd">'+svg(ICON.x,13,2)+'Hide the reply</span></summary>'; }
+function pickFollowUp(c, style){
+  var ch=chapterOf(c._ch), pool=(ch && ch.followUps)||[];
+  var same=pool.filter(function(f){ return f && f.style===style; });
+  var from=same.length?same:pool;
+  return from.length ? from[Math.floor(Math.random()*from.length)] : null;
+}
+function startSpeak(firstId, style){
+  if(style && STYLE[style] && style!==S.set.style){ S.set.style=style; save(); }
+  if(!SAYIT.length) return go("speakdone",{empty:true});
+  var q=speakQueue(S.set.style, firstId);
+  go("speak", newPromptCtx({queue:q.ids, extra:q.extra, i:0, done:[]}));
+}
+function newPromptCtx(base){
+  var c=BY_ID[base.queue[base.i]], style=S.set.style;
+  return {queue:base.queue, extra:base.extra, i:base.i, done:base.done, id:c.id, style:style, prompt:pickPrompt(c,style),
+    phase:"ask", checks:{head:false, why:false, num:false, bridge:false, jargon:false}, elapsed:null,
+    fu:pickFollowUp(c,style), fuElapsed:null, fuHead:false, recording:false, recNote:null};
+}
+SCREENS.speak=function(){
+  var c=BY_ID[ctx.id], st=STYLE[ctx.style], p=c[ctx.style]||{}, n=ctx.queue.length;
+  var title="Speak · "+(ctx.i+1)+" of "+n+(ctx.phase==="reveal"?" · reveal":ctx.phase==="fuask"||ctx.phase==="fureveal"?" · follow-up":"");
+  var right='<span class="chip mute">Ch '+c._ch+'</span>';
+  var h='<div class="fade">';
+  if(ctx.phase==="ask" || ctx.phase==="fuask"){
+    var isFu=ctx.phase==="fuask";
+    if(!isFu){
+      h+='<div class="seg" role="radiogroup" aria-label="Answer style">'+["air","client"].map(function(s){
+        return '<button role="radio" aria-checked="'+(s===ctx.style)+'" class="'+(s===ctx.style?'on':'')+'" data-a="style" data-v="'+s+'"'+(ctx.recording?' disabled':'')+'>'+esc(STYLE[s].seg)+'</button>';
+      }).join("")+'</div>';
+      if(ctx.extra && ctx.i===0) h+='<p class="hint" style="margin:-4px 0 12px">Nothing is due. These are extra reps.</p>';
+      h+='<div class="card">'+whoBlock(ctx.prompt.asker)+'<div class="h-q">'+quoteText(ctx.prompt.q)+'</div></div>';
+    } else {
+      h+='<div class="fu" style="margin-top:0"><div class="lbl sec" style="margin:0">Follow-up · '+esc(ctx.fu.asker||st.who)+'</div><div class="q">'+quoteText(ctx.fu.q)+'</div>'+
+        '<div style="font-size:12px;color:var(--text-muted)">Lead with the headline. Then compare with the model reply.</div></div>';
+    }
+    var mk=(st.lo/st.hi*100).toFixed(1);
+    h+='<div class="timer" aria-hidden="'+(ctx.recording?'false':'true')+'"><div class="big" id="tbig">0:00</div><div class="tgt">target '+st.lo+'–'+st.hi+' s</div>'+
+      '<div class="tbar"><i id="tbar" style="width:0%"></i><span class="mk" style="left:'+mk+'%"></span></div></div>'+
+      '<div class="wave" id="wave" aria-hidden="true">'+new Array(22).join("<i></i>")+'</div>'+
+      '<button class="rec'+(ctx.recording?' on':'')+'" data-a="rec" aria-label="'+(ctx.recording?'Stop':'Start')+(recSupported()?' recording':' timer')+'"><i></i></button>'+
+      '<p class="hint" id="rhint">'+recHint(isFu)+'</p>'+
+      '<div class="stack"><button class="btn ghost" data-a="'+(isFu?'fuskip':'skip')+'"'+(ctx.recording?' disabled':'')+'>'+(isFu?'Skip recording, just reveal the reply':'Skip recording, just reveal')+'</button></div>'+
+      '<p class="hint">A skipped recording isn\'t timed, so that attempt can\'t count as a pass.</p>';
+    return [barBack(title,"quit",null,right), h+'</div>'];
+  }
+  if(ctx.phase==="reveal"){
+    var sc=Core.score(ctx.checks, ctx.elapsed, ctx.style), it=Core.inTime(ctx.elapsed, ctx.style);
+    var mid=Math.round((st.lo+st.hi)/2);
+    h+=playBar("main", ctx.elapsed)+
+      '<div class="card"><div class="lbl sec">Model answer · '+esc(st.label.toLowerCase())+' · ~'+mid+' s</div>'+beats(ctx.prompt.answer||p, ctx.style, true)+'</div>'+
+      '<div class="score"><div class="s">'+sc+' <span>/ 5</span></div><div class="m">'+esc(scoreNote(c, sc))+'</div></div>'+
+      '<div class="checks">'+
+        chk("head","Headline","The first sentence answered the question that was asked", ctx.checks.head, true)+
+        chk("why","Why","Gave the mechanism, not just the claim", ctx.checks.why)+
+        chk("num","Number","One real figure, and the right one for this listener", ctx.checks.num)+
+        chk("bridge","Bridge", ctx.style==="air"?"Ended on why it matters to the viewer, never on a product":"Ended on their decision", ctx.checks.bridge)+
+        '<button class="chk'+(ctx.checks.jargon && it?' on':'')+'" data-a="chk" data-v="jargon" role="checkbox" aria-checked="'+(!!(ctx.checks.jargon && it))+'" aria-label="'+esc("Delivery: "+(ctx.elapsed==null?"not timed":it?"in time":"out of time")+"; jargon "+(ctx.checks.jargon?"explained":"not confirmed")+". Tap to toggle the jargon check.")+'">'+
+          '<span class="bx">'+(ctx.checks.jargon && it?svg(ICON.check,12,3.4):'')+'</span>'+
+          '<span class="lb">Delivery<span class="auto'+(it?'':' bad')+'">'+esc(ctx.elapsed==null?'not timed':fmtSec(ctx.elapsed)+' · '+(it?'in time ✓':ctx.elapsed<st.lo?'short of target':'over target'))+'</span>'+
+          '<span class="sm">The app scores the time. You check the jargon: tap if you explained every acronym the first time. '+(ctx.checks.jargon?'<b style="color:var(--text-primary)">Jargon: explained ✓.</b> ':'')+'A jargon or time miss fails Delivery.</span></span></button>'+
+      '</div>';
+    if(ctx.fu){
+      h+='<div class="fu"><div class="lbl sec" style="margin:0">Follow-up · '+esc(ctx.fu.asker||st.who)+'</div><div class="q">'+quoteText(ctx.fu.q)+'</div>'+
+        '<div style="font-size:12px;color:var(--text-muted);margin:-4px 0 6px">After you answer, a headline-first model reply appears so you can compare.</div>'+
+        '<button class="go" data-a="fuanswer">'+svg(ICON.mic,16)+'Answer it, starting with the headline</button></div>';
+    }
+    h+=srcList(c, ctx.prompt.sources||c.sources)+'<div class="stack">'+(ctx.fu?'<button class="btn ghost" data-a="save">Skip the follow-up and save</button>':'<button class="btn primary" data-a="save">Save · next prompt</button>')+'</div>';
+    return [barBack(title,"quit",null,right), h+'</div>'];
+  }
+  // fureveal
+  var sc2=Core.score(ctx.checks, ctx.elapsed, ctx.style), f=ctx.fu, r=f.reply||{};
+  var pass=Core.isPass({score:sc2, head:ctx.checks.head, fu:ctx.fuHead, sec:ctx.elapsed, fuSec:ctx.fuElapsed});
+  h+=playBar("fu", ctx.fuElapsed)+
+    '<div class="card"><div class="lbl sec">Model reply · headline first</div><div class="h-q" style="font-size:15px;margin-bottom:8px">'+quoteText(f.q)+'</div>'+beats({headline:r.headline, why:r.why, bridge:r.bridge}, ctx.style, false)+'</div>'+
+    '<div class="checks" style="margin-top:12px">'+chk("fuHead","Answered headline-first?","Your first sentence answered the pushback, before any context", ctx.fuHead, true)+'</div>'+
+    '<div class="score"><div class="s">'+sc2+' <span>/ 5</span></div><div class="m">'+(pass?'This attempt counts as a pass.':'Not a pass: '+(ctx.elapsed==null?'the answer wasn\'t timed':ctx.fuElapsed==null?'the follow-up wasn\'t timed':sc2<4?'needs 4 of 5':!ctx.checks.head?'headline must pass':'follow-up must lead with the headline')+'.')+'</div></div>'+
+    srcList(c, (ctx.prompt.sources||c.sources||[]).concat(f.sources||[]))+
+    '<div class="stack"><button class="btn primary" data-a="save">Save · '+(ctx.i>=n-1?'finish':'next prompt')+'</button></div>';
+  return [barBack(title,"quit",null,right), h+'</div>'];
+};
+function recHint(isFu){
+  var n=ctx.recNote;
+  if(n==="waiting") return "Waiting for the microphone…";
+  if(ctx.recording && (n==="denied" || n==="unsupported")) return (n==="denied"?"Microphone permission was declined":"Recording isn't available here")+", so this is timer only. Tap to stop when you finish.";
+  if(ctx.recording) return "Recording. Say it "+(ctx.style==="air"?"the way you would on air":"the way you would across the table")+".<br>Tap to stop. Audio stays on this screen and is never saved.";
+  return (recSupported()?"Tap to record and start the timer.":"Tap to start the timer.")+(isFu?" Lead with the headline.":"")+"<br>Audio stays on this screen and is never saved or sent.";
+}
+function playBar(which, sec){
+  if(!Rec.url[which]) return sec!=null ? '<div class="play" style="cursor:default"><span class="pb">'+svg(ICON.clock,13)+'</span><span class="tl">Timed, not recorded</span><span class="tm">'+fmtSec(sec)+'</span></div>' : '';
+  return '<button class="play" data-a="play" data-v="'+which+'" aria-label="Play your recording"><span class="pb">'+svg(ICON.playf,12,0,true)+'</span><span class="tl">Your answer</span><span class="tm">'+fmtSec(sec)+'</span></button>';
+}
+function chk(key, label, sub, on, must){
+  return '<button class="chk'+(on?' on':'')+'" data-a="chk" data-v="'+key+'" role="checkbox" aria-checked="'+(!!on)+'"><span class="bx">'+(on?svg(ICON.check,12,3.4):'')+'</span>'+
+    '<span class="lb">'+esc(label)+(must?'<span class="chip must">Must pass</span>':'')+'<span class="sm">'+esc(sub)+'</span></span></button>';
+}
+function scoreNote(c, sc){
+  if(ctx.elapsed==null) return "Not timed, so this attempt can't count as a pass.";
+  if(!ctx.checks.head) return "Headline must pass. Lead with the answer.";
+  if(sc<4) return "A pass needs 4 of 5 with the headline.";
+  return Core.pairsToday(hist(c.id, ctx.style), Core.dayKey())
+    ? "Speak-ready once the follow-up lands headline-first, timed."
+    : "Counts as a pass if the follow-up lands headline-first, timed. Pass again 3–30 days from now to make it speak-ready.";
+}
+function saveAttempt(){
+  var c=BY_ID[ctx.id], sc=Core.score(ctx.checks, ctx.elapsed, ctx.style);
+  var a={d:Core.dayKey(), t:Date.now(), score:sc, head:!!ctx.checks.head, fu:!!ctx.fuHead, sec:ctx.elapsed==null?null:Math.round(ctx.elapsed), fuSec:ctx.fuElapsed==null?null:Math.round(ctx.fuElapsed)};
+  S.speak[c.id]=S.speak[c.id]||{}; S.speak[c.id][ctx.style]=(S.speak[c.id][ctx.style]||[]).concat([a]).slice(-50);
+  markDay(); save();
+  var done=ctx.done.concat([{id:c.id, style:ctx.style, score:sc, pass:Core.isPass(a), ready:isReadyCard(c, a.d)}]);
+  teardownAudio();
+  if(ctx.i>=ctx.queue.length-1) return go("speakdone",{done:done});
+  ctx=newPromptCtx({queue:ctx.queue, extra:ctx.extra, i:ctx.i+1, done:done});
+  render(); $("#main").scrollTop=0;
+}
+SCREENS.speakdone=function(){
+  if(ctx.empty) return [barTitle("Speak"), '<div class="empty">No Say it prompts in this deck yet.</div>'];
+  var d=ctx.done||[], passes=d.filter(function(x){ return x.pass; }).length;
+  var h='<div class="fade"><div class="bigscore"><div class="v">'+passes+' <span>/ '+d.length+' passed</span></div>'+
+    '<p>'+readyCount()+' of '+SAYIT.length+' prompts are speak-ready.</p></div><div class="card">';
+  d.forEach(function(x){ var c=BY_ID[x.id];
+    h+='<div class="irow"><span class="mdot" style="background:'+(x.ready?'var(--success)':x.pass?'var(--accent-light)':'var(--chip-mute)')+'"></span><span class="tt">'+esc(c?c.title:x.id)+'<br><small style="color:var(--text-muted)">'+esc(STYLE[x.style].label)+' · '+x.score+' / 5'+(x.ready?' · speak-ready':x.pass?' · pass':'')+'</small></span></div>';
+  });
+  h+='</div><div class="stack"><button class="btn primary" data-a="tab" data-v="speak">More prompts</button><button class="btn ghost" data-a="tab" data-v="home">Home</button></div></div>';
+  return [barTitle("Speak"), h];
+};
+
+/* ---- LIBRARY ---- */
+function libMatches(){
+  var t=Core.dayKey(), q=LIB.q.trim().toLowerCase();
+  return CARDS.filter(function(c){
+    if(LIB.ch!=="all" && String(c._ch)!==LIB.ch) return false;
+    if(LIB.kind!=="all" && c.kind!==LIB.kind) return false;
+    if(LIB.stale && !Core.isStale(c,t)) return false;
+    if(q && c._text.indexOf(q)<0) return false;
+    return true;
+  });
+}
+function libList(){
+  var list=libMatches();
+  if(!list.length) return '<div class="empty">No cards match.'+(LIB.stale?' Nothing is past its re-check date with these filters.':'')+'</div>';
+  return '<div class="card" style="padding-top:6px;padding-bottom:6px">'+list.map(function(c){
+    return '<button class="lrow" data-a="opencard" data-v="'+esc(c.id)+'">'+kindChip(c.kind)+'<span class="lt"><b>'+esc(c.title)+'</b><small>Ch '+c._ch+' · '+esc(c._chTitle)+'</small>'+(c.asOf?'<span style="display:block;margin-top:6px">'+asOfChip(c)+'</span>':'')+'</span></button>';
+  }).join("")+'</div>';
+}
+SCREENS.library=function(){
+  var stale=staleCards().length;
+  var h='<div class="fade"><label class="search" for="libq">'+svg(ICON.search,16)+'<input id="libq" type="search" placeholder="Search titles and text" value="'+esc(LIB.q)+'" autocomplete="off" spellcheck="false"></label>'+
+    '<div class="filters" role="group" aria-label="Chapter filter">'+fchip("libch","all","All chapters",LIB.ch==="all")+
+      CHAPTERS.map(function(ch){ return fchip("libch",String(ch.n),"Ch "+ch.n+" · "+shortTitle(ch.title),LIB.ch===String(ch.n)); }).join("")+'</div>'+
+    '<div class="filters" role="group" aria-label="Kind filter">'+fchip("libkind","all","All kinds",LIB.kind==="all")+
+      KINDS.map(function(k){ return fchip("libkind",k,KIND_LABEL[k],LIB.kind===k); }).join("")+
+      '<button class="fchip'+(LIB.stale?' warnon':'')+'" data-a="libstale" aria-pressed="'+LIB.stale+'">'+svg(ICON.warn,13,2.2)+'Stale · '+stale+'</button></div>'+
+    '<div id="liblist" style="margin-top:10px">'+libList()+'</div></div>';
+  return [barTitle("Library", CARDS.length+" cards"), h];
+};
+function fchip(act, v, label, on){ return '<button class="fchip'+(on?' on':'')+'" data-a="'+act+'" data-v="'+esc(v)+'" aria-pressed="'+on+'">'+esc(label)+'</button>'; }
+SCREENS.card=function(){
+  var c=BY_ID[ctx.id]; if(!c) return SCREENS.library();
+  var h='<div class="fade">';
+  if(c.kind==="sayit") h+=sayitDetail(c);
+  else {
+    h+=teach(c);
+    if(c.kind==="concept"||c.kind==="word"){ var z=c.quiz||{};
+      if(z.q) h+='<div class="card" style="margin-top:10px"><div class="lbl">Check yourself</div><div class="body">'+esc(z.q)+' <b>'+esc((z.options||[])[z.answer])+'.</b> '+esc(z.why)+'</div></div>'; }
+    if(c.kind!=="sayit") h+='<div class="kv" style="margin-top:12px">'+(LEARNABLE[c.kind]?'Leitner box <b>'+boxOf(c.id)+'</b> of 5'+(boxOf(c.id)>=2?' · learned':''):'Live cards are read, not tested.')+'</div>';
+  }
+  h+='<div class="card" style="margin-top:12px"><div class="lbl">Sources</div><div class="srclist">'+(c.sources||[]).map(function(s){
+      var u=Core.safeUrl(s.url), t='<span style="flex:1">'+esc(s.name)+(s.date?' · '+esc(fmtDate(s.date)):'')+'</span>';
+      return u ? '<a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">'+t+svg(ICON.ext,14,2)+'</a>' : '<span class="nolink">'+t+'</span>';
+    }).join("")+'</div>'+
+    (c.asOf?'<div class="chiprow" style="margin-top:10px">'+asOfChip(c)+(c.recheckBy?'<span class="chip mute">Re-check by '+esc(fmtDate(c.recheckBy))+'</span>':'')+'</div>':'')+'</div>';
+  return [barBack(KIND_LABEL[c.kind]+" · Ch "+c._ch,"go","library"), h+'</div>'];
+};
+
+/* ---- SETTINGS ---- */
+SCREENS.settings=function(){
+  var m=DECK_META||{}, sess=Cloud.session, tests=LAST_TESTS;
+  var src=m.source==="dev"?"Dev file: "+m.path : m.source==="cloud"?"Personal cloud":"Saved copy on this device";
+  var h='<div class="fade">'+
+    '<div class="card"><div class="lbl">Appearance</div><div class="seg" role="radiogroup" aria-label="Theme" style="margin:6px 0 0">'+
+      ["dark","light"].map(function(t){ return '<button role="radio" aria-checked="'+(S.set.theme===t)+'" class="'+(S.set.theme===t?'on':'')+'" data-a="theme" data-v="'+t+'">'+(t==="dark"?"Dark":"Light")+'</button>'; }).join("")+'</div></div>'+
+    '<div class="card"><div class="lbl">Content</div>'+
+      '<div class="kv">Deck <b>'+esc((DECK&&DECK.version)||m.version||"—")+'</b> · content as of <b>'+esc(fmtDate((DECK&&DECK.builtAt)||m.updatedAt||"")||"—")+'</b></div>'+
+      '<div class="kv">'+esc(src)+(m.updatedAt?' · updated '+esc(fmtDate(m.updatedAt)):'')+' · '+CARDS.length+' cards, '+SAYIT.length+' prompts</div>'+
+      (DECK_ERRS.length?'<div class="requeue"><b>'+DECK_ERRS.length+' content problem'+(DECK_ERRS.length===1?'':'s')+'</b>'+DECK_ERRS.slice(0,8).map(esc).join("<br>")+(DECK_ERRS.length>8?'<br>…':'')+'</div>':'')+
+      (sess?'<div class="stack"><button class="btn ghost" data-a="refresh">Check for new content</button></div>':'')+
+    '</div>'+
+    '<div class="card"><div class="lbl">Account</div>'+
+      (sess?'<div class="kv">Signed in as <b>'+esc(sess.user && sess.user.email)+'</b></div><div class="stack"><button class="btn danger" data-a="signout">Sign out</button></div>'
+           :'<div class="kv">Not signed in.'+(DEV?' Dev mode reads a local deck file.':' Using the copy saved on this device.')+'</div><div class="stack"><button class="btn ghost" data-a="go" data-v="signin">Sign in</button></div>')+
+    '</div>'+
+    '<div class="card"><div class="lbl">Progress</div><div class="kv">'+learnedCount()+' of '+LEARN_CARDS.length+' cards learned · '+readyCount()+' of '+SAYIT.length+' prompts speak-ready · day '+(Core.daysBetween(S.startDay,Core.dayKey())+1)+'</div>'+
+      '<div class="stack"><button class="btn danger" data-a="reset">Reset all progress</button></div></div>'+
+    '<div class="card"><div class="lbl">Self-tests</div>'+
+      (tests?'<div class="kv"><b style="color:var('+(tests.failed?'--error':'--success')+')">'+tests.passed+' passed · '+tests.failed+' failed</b></div>'+
+        (tests.failed?'<div class="testlist">'+tests.results.filter(function(r){ return !r.ok; }).map(function(r){ return '<div class="f">FAIL: '+esc(r.name)+(r.detail?' — '+esc(r.detail):'')+'</div>'; }).join("")+'</div>':'')+
+        '<details><summary>Show all '+tests.results.length+'</summary><div class="testlist">'+tests.results.map(function(r){ return '<div'+(r.ok?'':' class="f"')+'>'+(r.ok?'✓ ':'✗ ')+esc(r.name)+(r.detail?' — '+esc(r.detail):'')+'</div>'; }).join("")+'</div></details>':'')+
+      '<div class="stack"><button class="btn ghost" data-a="runtests">Run again</button></div></div>'+
+    '<p class="hint" style="margin-top:16px">Tape '+APP_VERSION+'. Recordings stay on this screen and are never stored or sent.<br>Public information only. "On air" is a speaking style for practice, not authorization to speak to media.</p>'+
+  '</div>';
+  return [barBack("Settings","go","home"), h];
+};
+
+/* ==========================================================================
+   EVENTS (one delegated handler; control attribute is data-a, never data-theme)
+   ========================================================================== */
+document.addEventListener("click", function(e){
+  var t=e.target.closest("[data-a]"); if(!t || t.disabled) return;
+  var a=t.getAttribute("data-a"), v=t.getAttribute("data-v");
+  switch(a){
+    case "go": return go(v);
+    case "reload": return location.reload();
+    case "tab":
+      if(v==="drill") return startDrill();
+      if(v==="speak") return startSpeak();
+      return go(v);
+    case "quit":
+      if(view==="set") return go("chapter",{n:ctx.n, pick:ctx.idx});
+      return go("home");
+    case "chapter": return go("chapter",{n:+v});
+    case "pickset": ctx.pick=+v; return render();
+    case "startset": var p=v.split(":"); return startSet(+p[0], +p[1]);
+    case "learned":
+      if(ctx.i<ctx.ids.length-1){ ctx.i++; render(); $("#main").scrollTop=0; return; }
+      if(!ctx.tested.length) return finishSet();
+      ctx.phase="test"; ctx.queue=Core.shuffle(ctx.tested); ctx.mc=mcFor(BY_ID[ctx.queue[0]]); ctx.answered=false; ctx.pick=null;
+      render(); $("#main").scrollTop=0; return;
+    case "setopt":
+      if(ctx.answered) return;
+      ctx.answered=true; ctx.pick=+v; ctx.ok=!!(ctx.mc.opts[+v] && ctx.mc.opts[+v].ok); if(!ctx.ok) ctx.misses++;
+      render(); return;
+    case "setnext":
+      var id=ctx.queue.shift();
+      if(ctx.ok){ if(!ctx.queue.length) return finishSet(); }
+      else { ctx.queue.push(id); ctx.phase="reteach"; ctx.answered=false; render(); $("#main").scrollTop=0; return; }
+      ctx.mc=mcFor(BY_ID[ctx.queue[0]]); ctx.answered=false; ctx.pick=null; render(); $("#main").scrollTop=0; return;
+    case "retaught":
+      ctx.phase="test"; ctx.mc=mcFor(BY_ID[ctx.queue[0]]); ctx.answered=false; ctx.pick=null; render(); $("#main").scrollTop=0; return;
+    case "drillopt": return answerDrill(+v);
+    case "drillnext":
+      if(ctx.i>=ctx.cards.length-1) return go("drilldone",{correct:ctx.correct, total:ctx.cards.length});
+      ctx.i++; ctx.answered=false; ctx.pick=null; ctx.mc=mcFor(ctx.cards[ctx.i]); render(); $("#main").scrollTop=0; return;
+    case "speakcard": return startSpeak(v);
+    case "practice": var pp=v.split("|"); return startSpeak(pp[0], pp[1]);
+    case "style":
+      if(ctx.recording || v===ctx.style) return;
+      S.set.style=v; save(); teardownAudio();
+      ctx=newPromptCtx({queue:ctx.queue, extra:ctx.extra, i:ctx.i, done:ctx.done}); return render();
+    case "rec": return ctx.recording ? stopAnswer() : startAnswer(ctx.phase==="fuask"?"fu":"main");
+    case "skip": teardownAudio(); ctx.elapsed=null; ctx.phase="reveal"; render(); $("#main").scrollTop=0; return;
+    case "fuskip": stopPlayer(); ctx.fuElapsed=null; ctx.phase="fureveal"; render(); $("#main").scrollTop=0; return;
+    case "fuanswer": stopPlayer(); ctx.phase="fuask"; render(); $("#main").scrollTop=0; return;
+    case "chk":
+      if(v==="fuHead") ctx.fuHead=!ctx.fuHead; else ctx.checks[v]=!ctx.checks[v];
+      return render();
+    case "play": return togglePlay(v);
+    case "save": return saveAttempt();
+    case "showstale": LIB={q:"", ch:"all", kind:"all", stale:true}; return go("library");
+    case "libch": LIB.ch=v; return render();
+    case "libkind": LIB.kind=v; return render();
+    case "libstale": LIB.stale=!LIB.stale; return render();
+    case "opencard": return go("card",{id:v});
+    case "theme": S.set.theme=v; save(); return render();
+    case "day60":
+      if(v==="done") S.day60=Core.dayKey(); else S.day60Snooze=Core.addDays(Core.dayKey(),7);
+      save(); return render();
+    case "refresh": toast("Checking…"); return refreshDeck(true);
+    case "retry": go("boot"); return refreshDeck(true);
+    case "runtests": LAST_TESTS=runTests(); return render();
+    case "reset":
+      if(confirm("Reset all progress? Leitner boxes, cleared sets, drill history and every Speak attempt will be cleared.")){
+        var keep=S.set; S=freshState(); S.set=keep; S.startDay=Core.dayKey(); save(); toast("Progress reset"); return go("home");
+      }
+      return;
+    case "signout":
+      if(!confirm("Sign out? The content saved on this device is removed too; your progress stays.")) return;
+      try{ localStorage.removeItem(LS_DECK); }catch(err){}
+      var done=function(){ Cloud.session=null; DECK=null; DECK_META=null; CHAPTERS=[]; CARDS=[]; BY_ID=Object.create(null); SAYIT=[]; LEARN_CARDS=[]; go("signin"); };
+      if(Cloud.sb) Cloud.sb.auth.signOut({scope:"local"}).then(done, done); else done();
+      return;
+  }
+});
+document.addEventListener("submit", function(e){
+  if(e.target.id!=="signin-form") return;
+  e.preventDefault();
+  var email=(document.getElementById("si-email").value||"").trim(), pw=document.getElementById("si-pw").value||"";
+  var msg=document.getElementById("si-msg"), btn=document.getElementById("si-go");
+  if(!email || !pw){ msg.textContent="Email and password, both."; msg.className="msg err"; return; }
+  if(!cloudInit()){ msg.textContent="Can't reach the sign-in service. Check your connection."; msg.className="msg err"; return; }
+  btn.disabled=true; btn.textContent="Signing in…"; msg.textContent=""; msg.className="msg";
+  Cloud.sb.auth.signInWithPassword({email:email, password:pw}).then(function(r){
+    if(r.error){ btn.disabled=false; btn.textContent="Sign in"; msg.textContent=r.error.message||"Sign-in failed."; msg.className="msg err"; return; }
+    Cloud.session=r.data && r.data.session; go("boot"); refreshDeck(false);
+  }).catch(function(){ btn.disabled=false; btn.textContent="Sign in"; msg.textContent="Couldn't reach the server."; msg.className="msg err"; });
+});
+document.addEventListener("input", function(e){
+  if(e.target.id==="libq"){ LIB.q=e.target.value; var l=document.getElementById("liblist"); if(l) l.innerHTML=libList(); }
+});
+document.addEventListener("change", function(e){
+  if(e.target.id!=="deckfile" || !e.target.files || !e.target.files[0]) return;
+  var f=e.target.files[0], rd=new FileReader();
+  rd.onload=function(){ try{ var doc=JSON.parse(rd.result); if(setDeck(doc,{source:"dev", path:f.name, version:doc.version, updatedAt:doc.builtAt})) return go("home"); }catch(err){} toast("That file isn't a valid deck."); };
+  rd.readAsText(f);
+});
+window.addEventListener("pagehide", function(){ teardownAudio(); });
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState!=="hidden") return;
+  if(view==="speak" && ctx.recording) stopAnswer();   // keep the answer, release the mic
+  stopPlayer();
+});
+function showUpdateToast(){
+  if(document.getElementById("update-toast")) return;
+  var b=document.createElement("button"); b.id="update-toast"; b.className="toast"; b.setAttribute("data-a","reload");
+  b.textContent="Tape updated — tap to reload"; document.body.appendChild(b);
+  var live=$("#live"); if(live) live.textContent="Tape updated. Tap to reload.";
+}
+
+/* ==========================================================================
+   SELF-TESTS: window.tapeTests() -> {passed, failed, results}
+   Pure-function tests use fixed dates and never touch progress state.
+   ========================================================================== */
+function runTests(){
+  var results=[];
+  function ok(name, cond, detail){ results.push({name:name, ok:!!cond, detail:cond?"":(detail||"")}); }
+  var D="2026-10-11", L=Core.leitnerNext, A=function(d,score,head,fu,sec,fuSec){ return {d:d, t:0, score:score, head:head!==false, fu:fu!==false, sec:sec===undefined?25:sec, fuSec:fuSec===undefined?10:fuSec}; };
+
+  // Leitner transitions + decay
+  ok("Leitner: right moves 0 to 1", L(0,true)===1);
+  ok("Leitner: right moves 4 to 5", L(4,true)===5);
+  ok("Leitner: box 5 is the ceiling", L(5,true)===5);
+  ok("Leitner: a miss resets to 0", L(3,false)===0 && L(5,false)===0);
+  var day=86400000, now=Date.UTC(2026,9,11);
+  ok("Decay: box 5 untouched 29 days stays 5", Core.decayBox(5, now-29*day, now).box===5);
+  ok("Decay: box 5 untouched 31 days drops to 4", Core.decayBox(5, now-31*day, now).box===4);
+  ok("Decay: box 5 untouched 61 days drops to 3", Core.decayBox(5, now-61*day, now).box===3);
+  ok("Decay: box 3 never decays", Core.decayBox(3, now-400*day, now).box===3);
+
+  // Speak-ready rule
+  var R=Core.speakReady;
+  ok("Speak-ready: no attempts is not ready", R([], D)===false);
+  ok("Speak-ready: one pass is not ready", R([A("2026-10-10",5)], D)===false);
+  ok("Speak-ready: two passes the same day don't count", R([A("2026-10-10",5),A("2026-10-10",4)], D)===false);
+  ok("Speak-ready: passes 2 days apart don't count", R([A("2026-10-08",5),A("2026-10-10",5)], D)===false);
+  ok("Speak-ready: passes 3 days apart count", R([A("2026-10-07",4),A("2026-10-10",4)], D)===true);
+  ok("Speak-ready: 3-day gap across a month end", R([A("2026-01-30",4),A("2026-02-02",4)], "2026-02-02")===true);
+  ok("Speak-ready: latest pass 30 days old still ready", R([A("2026-09-01",5),A("2026-09-11",5)], D)===true);
+  ok("Speak-ready: latest pass 31 days old has decayed", R([A("2026-09-01",5),A("2026-09-10",5)], D)===false);
+  ok("Speak-ready: headline fail never passes, even at 5/5", R([A("2026-10-01",5,false),A("2026-10-08",5,false)], D)===false && !Core.isPass(A(D,5,false)));
+  ok("Speak-ready: 3 of 5 is not a pass", R([A("2026-10-01",3),A("2026-10-08",3)], D)===false);
+  ok("Speak-ready: follow-up not headline-first is not a pass", R([A("2026-10-01",5,true,false),A("2026-10-08",5,true,false)], D)===false);
+  ok("Speak-ready: failed attempts between passes don't matter", R([A("2026-10-01",5),A("2026-10-03",2),A("2026-10-05",4)], D)===true);
+  ok("Calendar days ignore DST", Core.daysBetween("2026-03-07","2026-03-09")===2 && Core.daysBetween("2026-10-31","2026-11-02")===2);
+  var st=Core.speakStatus;
+  ok("Due: never tried is due", st([], D).due===true);
+  ok("Due: passed yesterday is resting, not due", st([A("2026-10-10",5)], D).due===false);
+  ok("Due: a pass 3+ days ago ranks most due", st([A("2026-10-07",5)], D).rank===0);
+  ok("Delivery: air window is 20-30 s inclusive", Core.inTime(20,"air") && Core.inTime(30,"air") && !Core.inTime(19,"air") && !Core.inTime(31,"air") && !Core.inTime(null,"air"));
+  ok("Delivery: client window is 60-90 s", Core.inTime(75,"client") && !Core.inTime(91,"client"));
+  ok("Score: a jargon miss fails Delivery", Core.score({head:1,why:1,num:1,bridge:1,jargon:false},25,"air")===4 && Core.score({head:1,why:1,num:1,bridge:1,jargon:true},25,"air")===5);
+  ok("Score: out of time fails Delivery even with jargon ticked", Core.score({head:1,why:1,num:1,bridge:1,jargon:true},45,"air")===4);
+
+  // Review fixes (CIO/CISO): one test per logic fix
+  ok("Speak-ready: passes 31 days apart don't pair", R([A("2026-09-10",5),A("2026-10-11",5)], D)===false);
+  ok("Speak-ready: an old first pass can't pair with one recent pass", R([A("2026-06-01",5),A("2026-06-06",5),A("2026-10-09",5)], D)===false);
+  ok("Speak-ready: 3-30 day pair whose later pass is recent counts", R([A("2026-06-01",5),A("2026-09-20",5),A("2026-10-01",5)], D)===true);
+  ok("Due: one pass 31+ days old is not 'one pass away'", st([A("2026-09-01",5)], D).rank!==0 && Core.pairsToday([A("2026-09-01",5)], D)===false && Core.pairsToday([A("2026-10-01",5)], D)===true);
+  ok("Pass: an untimed answer can't pass", !Core.isPass(A(D,5,true,true,null)) && R([A("2026-10-01",5,true,true,null),A("2026-10-08",5,true,true,null)], D)===false);
+  ok("Pass: an untimed follow-up can't pass", !Core.isPass(A(D,5,true,true,25,null)) && Core.isPass(A(D,5,true,true,25,10)));
+  ok("Decay: every mastered review restarts the 30-day clock", (function(){
+    var id="zz-test-mast", kb=S.box[id], km=S.mastAt[id], t0=Date.UTC(2026,0,1), okv;
+    try{ setBox(id,4,t0); setBox(id,5,t0+20*day); okv=S.mastAt[id]===t0+20*day && Core.decayBox(S.box[id], S.mastAt[id], t0+45*day).box===5;
+         setBox(id,0,t0+46*day); okv=okv && S.mastAt[id]===undefined; }
+    finally{ if(kb===undefined) delete S.box[id]; else S.box[id]=kb; if(km===undefined) delete S.mastAt[id]; else S.mastAt[id]=km; }
+    return okv; })());
+  ok("Drill: only cards taught in Learn are drilled", (function(){ var cs=[{id:"a"},{id:"b"},{id:"c"}];
+    return Core.drillPool(cs,{b:"2026-10-01"}).map(function(c){ return c.id; }).join()==="b" && Core.drillPool(cs,{}).length===0; })());
+  ok("Refresh: a loaded deck never leaves the app on boot/sign-in/no-content", Core.viewAfterRefresh("boot",true)==="home" &&
+     Core.viewAfterRefresh("signin",true)==="home" && Core.viewAfterRefresh("nocontent",true)==="home" &&
+     Core.viewAfterRefresh("boot",false)===null && Core.viewAfterRefresh("speak",true)===null);
+  ok("Dev deck: only loopback/file hosts, only same-origin paths", (function(){
+    function L(h){ var u=new URL(h); return {protocol:u.protocol, hostname:u.hostname, origin:u.origin, href:u.href}; }
+    var lh=L("http://localhost:8765/index.html?deck=x"), gh=L("https://davidlundberg.github.io/tape-app-shell/index.html?deck=x"), f=L("file:///Users/x/tape/index.html");
+    return Core.devDeckUrl(lh,"content/sample.json")==="http://localhost:8765/content/sample.json" &&
+      Core.devDeckUrl(lh,"https://evil.example/d.json")===null && Core.devDeckUrl(lh,"//evil.example/d.json")===null &&
+      Core.devDeckUrl(gh,"content/sample.json")===null && !Core.isLoopback(gh) && Core.isLoopback(lh) &&
+      Core.devDeckUrl(f,"content/sample.json")==="file:///Users/x/tape/content/sample.json" && Core.devDeckUrl(f,"https://evil.example/d.json")===null;
+  })());
+  ok("Card index has no prototype (ids like __proto__ can't collide)", Object.getPrototypeOf(BY_ID)===null && BY_ID["constructor"]===undefined);
+
+  // Set partition
+  var partOk=true, why="";
+  for(var n=1;n<=40;n++){
+    var ids=[]; for(var i=0;i<n;i++) ids.push("x"+i);
+    var sets=Core.partition(ids,6), flat=[].concat.apply([],sets);
+    if(flat.join()!==ids.join()){ partOk=false; why="order/coverage at "+n; break; }
+    if(sets.length!==Math.ceil(n/6)){ partOk=false; why="set count at "+n; break; }
+    if(sets.some(function(s){ return s.length>6 || (n>1 && s.length<2); })){ partOk=false; why="size at "+n; break; }
+  }
+  ok("Sets: every card once, in order, at most 6, never a set of 1", partOk, why);
+  if(DECK){
+    var learnIds=[]; CHAPTERS.forEach(function(ch){ learnIds=learnIds.concat([].concat.apply([],ch.sets)); });
+    var expect=CARDS.filter(function(c){ return LEARNABLE[c.kind]||c.kind==="live"; }).length;
+    ok("Sets: the loaded deck's learn cards are each in exactly one set", learnIds.length===expect && new Set(learnIds).size===expect);
+  }
+
+  // Drill weighting
+  ok("Drill weight: box 0 is 6, box 5 is 1", Core.drillWeight(0)===6 && Core.drillWeight(5)===1 && Core.drillWeight(3)===3);
+  var seed=42, rng=function(){ seed|=0; seed=seed+0x6D2B79F5|0; var t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; };
+  var boxes={a:0, b:5}, hitA=0;
+  for(var k=0;k<3000;k++){ if(Core.pickWeighted(1,["a","b"],function(x){ return boxes[x]; },rng)[0]==="a") hitA++; }
+  var share=hitA/3000;
+  ok("Drill weight: a box-0 card is picked about 6x as often as a box-5 card", share>0.82 && share<0.89, "share "+share.toFixed(3));
+  var picked=Core.pickWeighted(10,["a","b","c"],function(){ return 0; },rng);
+  ok("Drill: picks are unique and capped at the pool size", picked.length===3 && new Set(picked).size===3);
+
+  // Stale detection
+  ok("Stale: re-check month already over is stale", Core.isStale({recheckBy:"2026-09"}, D)===true);
+  ok("Stale: re-check this month is not stale yet", Core.isStale({recheckBy:"2026-10"}, D)===false);
+  ok("Stale: exact re-check day passed is stale", Core.isStale({recheckBy:"2026-10-10"}, D)===true);
+  ok("Stale: evergreen card is never stale", Core.isStale({}, D)===false);
+  ok("Stale: month end handles February and leap years", Core.recheckDay("2026-02")==="2026-02-28" && Core.recheckDay("2028-02")==="2028-02-29");
+
+  // Deck schema validation
+  var src=[{name:"Publisher", url:"https://example.org/a", date:"2026-01"}];
+  var good={chapter:9, chapterTitle:"T", cards:[
+    {id:"c9-a", kind:"concept", title:"t", volatile:false, body:"b", why:"w", oneLine:"o", quiz:{q:"q", options:["a","b","c","d"], answer:1, why:"y"}, sources:src}
+  ], followUps:[1,2,3].map(function(){ return {style:"air", q:"q", reply:{headline:"h", why:"w", bridge:"b"}, sources:src}; })};
+  ok("Schema: a valid chapter passes", Core.validateDeck({chapters:[good]}).length===0, Core.validateDeck({chapters:[good]}).join("; "));
+  var bad=JSON.parse(JSON.stringify(good));
+  bad.cards.push({id:"c9-b", kind:"number", title:"n", volatile:true, q:"q", options:["1","2"], answer:0, sources:[]});
+  bad.cards.push({id:"c9-c", kind:"sayit", title:"s", volatile:false, air:{asker:"a", q:"q", headline:"h", why:"w", number:"a lot of it", bridge:"b"}, client:{asker:"a", q:"q", headline:"h", why:"w", number:"5"}, sources:src});
+  bad.cards.push({id:"c9-d", kind:"live", title:"l", status:"s", oneLine:"o", sources:[{name:"x", url:"javascript:alert(1)"}]});
+  bad.followUps=bad.followUps.slice(0,2);
+  var errs=Core.validateDeck({chapters:[bad]}).join("\n");
+  ok("Schema: a card without sources is caught", /c9-b: no valid sources/.test(errs));
+  ok("Schema: a volatile card without asOf/recheckBy is caught", /c9-b: volatile card needs asOf/.test(errs) && /c9-b: volatile card needs recheckBy/.test(errs));
+  ok("Schema: a Say it missing a client part is caught", /c9-c\.client: bridge missing/.test(errs));
+  ok("Schema: an on-air number part with no figure is caught", /c9-c\.air: number part has no figure/.test(errs));
+  ok("Schema: fewer than 3 follow-ups is caught", /2 follow-ups/.test(errs));
+  ok("Schema: a non-volatile live card and a non-http link are caught", /c9-d: live cards must be volatile/.test(errs) && /c9-d: no valid sources/.test(errs));
+  (function(){
+    var live={id:"c9-live", kind:"live", title:"t", status:"s", oneLine:"o", volatile:true, asOf:"2026-10", recheckBy:"2027-01", sources:src};
+    var ch9={n:9, title:"Live", cards:[live], followUps:[
+      {style:"air", asker:"Anchor interrupts", q:"Pushback <one>?", reply:{headline:"H1", why:"W1", bridge:"B1"}, sources:src},
+      {style:"client", asker:"Client pushes back", q:"Pushback two?", reply:{headline:"H2", why:"W2", bridge:"B2"}, sources:src}]};
+    var html=liveTeach(live, ch9);
+    ok("Live: a chapter with follow-ups but no Say it cards still surfaces them",
+      ch9.cards.every(function(c){ return c.kind!=="sayit"; }) && html.indexOf("The pushback you'll get")>=0 &&
+      html.indexOf("Pushback &lt;one&gt;?")>=0 && html.indexOf("Pushback two?")>=0 && html.indexOf("H2")>=0 &&
+      (html.match(/<details>/g)||[]).length===2);
+  })();
+  (function(){
+    var g=JSON.parse(JSON.stringify(good));
+    g.cards.push({id:"c9-r", kind:"sayit", title:"s", volatile:false, sources:src,
+      air:{asker:"a", q:"q", headline:"h", why:"w", number:"5", bridge:"b"}, client:{asker:"a", q:"q", headline:"h", why:"w", number:"5", bridge:"b"},
+      rephrasings:[{style:"client", asker:"x", q:"q2"}, {style:"air", asker:"y", q:"q3", answer:{headline:"h", why:"w", number:"9", bridge:"b"}}]});
+    var e=Core.validateDeck({chapters:[g]}).join("\n");
+    ok("Schema: a rephrasing without answer or sources is caught", /c9-r: rephrasing 1 has no answer/.test(e) && /c9-r: rephrasing 1 has no valid sources/.test(e) && /c9-r: rephrasing 2 has no valid sources/.test(e), e);
+  })();
+  ok("Speak: a rephrasing's reveal shows its own answer, sources and acronyms, not the parent's", (function(){
+    var fake={id:"zz-test-reph", kind:"sayit", title:"t", _ch:-1, _chTitle:"t", sources:[{name:"Parent source", url:"https://example.org/p"}],
+      air:{asker:"Parent asker", q:"Parent q", headline:"parent-headline", why:"parent-why uses ABC", number:"1", bridge:"parent-bridge"},
+      client:{asker:"c", q:"c", headline:"c", why:"c", number:"1", bridge:"c"},
+      rephrasings:[{style:"air", asker:"Other listener", q:"Reph q", answer:{headline:"reph-headline", why:"reph-why uses XYZ", number:"2", bridge:"reph-bridge"},
+        sources:[{name:"Reph source", url:"https://example.org/r"}]}]};
+    var keepCtx=ctx, keepView=view, keepCard=BY_ID[fake.id], html="";
+    try{
+      BY_ID[fake.id]=fake;
+      var pr=pickPrompt(fake,"air",function(){ return 0.99; });
+      ctx={queue:[fake.id], i:0, done:[], id:fake.id, style:"air", prompt:pr, phase:"reveal",
+        checks:{head:false, why:false, num:false, bridge:false, jargon:false}, elapsed:null, fu:null, fuElapsed:null, fuHead:false};
+      html=SCREENS.speak()[1];
+    } finally { ctx=keepCtx; view=keepView; if(keepCard) BY_ID[fake.id]=keepCard; else delete BY_ID[fake.id]; }
+    return pr.q==="Reph q" && html.indexOf("reph-headline")>=0 && html.indexOf("parent-headline")<0 &&
+      html.indexOf("Reph source")>=0 && html.indexOf("Parent source")<0 && html.indexOf("(XYZ)")>=0 && html.indexOf("ABC")<0;
+  })());
+  if(DECK){ var de=Core.validateDeck(DECK); ok("Schema: the loaded deck is valid", de.length===0, de.slice(0,4).join("; ")+(de.length>4?" …":"")); }
+  else results.push({name:"Schema: the loaded deck is valid (skipped, no deck loaded)", ok:true, detail:""});
+
+  // Output safety
+  ok("esc() escapes markup and quotes", Core.esc('<a href="x">\'&')==="&lt;a href=&quot;x&quot;&gt;&#39;&amp;");
+  ok("Links: only http(s) are allowed", Core.safeUrl("https://sec.gov/x")==="https://sec.gov/x" && Core.safeUrl("javascript:alert(1)")===null && Core.safeUrl("data:text/html,x")===null && Core.safeUrl("//evil.example")===null);
+  ok("Schema: spelled-out figures count as the on-air number", Core.validateDeck({chapters:[(function(){ var g=JSON.parse(JSON.stringify(good));
+       g.cards.push({id:"c9-e", kind:"sayit", title:"s", volatile:false, sources:src,
+         air:{asker:"a", q:"q", headline:"h", why:"w", number:"The Fed meets eight times a year.", bridge:"b"},
+         client:{asker:"a", q:"q", headline:"h", why:"w", number:"5", bridge:"b"}}); return g; })()]}).length===0);
+  ok("Delivery acronyms: generic list, skips US", Core.acronyms("The SEC and US banks, SEC again").join()==="SEC");
+
+  // No deck content in the shell. Strings are assembled so this test can't trip itself.
+  var shell=document.head.innerHTML; document.querySelectorAll("script:not([src])").forEach(function(s){ shell+=s.textContent; });
+  var banned=[["Caly","pso"],["Vera","fin"],["Axiom","SL"],["Ade","na"],["FI","CC"],["12.5"," trillion"]].map(function(p){ return p.join(""); });
+  var hits=banned.filter(function(b){ return shell.indexOf(b)>=0; });
+  ok("Shell has no hard-coded deck content", hits.length===0, hits.join(", "));
+  ok("Shell version is set", /^\d+\.\d+\.\d+$/.test(APP_VERSION));
+
+  var failed=results.filter(function(r){ return !r.ok; }).length;
+  var res={passed:results.length-failed, failed:failed, results:results};
+  if(failed) console.error("Tape self-tests: "+failed+" of "+results.length+" FAILED", results.filter(function(r){ return !r.ok; }));
+  else console.log("Tape self-tests: "+results.length+"/"+results.length+" passed");
+  return res;
+}
+window.tapeTests=function(){ LAST_TESTS=runTests(); return LAST_TESTS; };
+
+/* ==========================================================================
+   BOOT
+   ========================================================================== */
+function boot(){
+  load(); applyTheme();
+  var params=new URLSearchParams(location.search);
+  DEV = location.protocol==="file:" || (params.has("deck") && Core.isLoopback(location));   // never on the public host
+  cloudInit();
+  if(DEV){
+    DEV_PATH=params.get("deck") || "content/deck.json";
+    view="boot"; render();
+    loadDevDeck().then(function(){ LAST_TESTS=runTests(); if(view==="settings") render(); });
+    if(Cloud.sb) Cloud.sb.auth.getSession().then(function(r){ Cloud.session=(r.data && r.data.session)||null; }).catch(function(){});
+  } else {
+    var cached=readDeckCache();
+    if(cached && setDeck(cached.doc, {source:"cache", version:cached.version, updatedAt:cached.updated_at})) go("home");
+    else { view="boot"; render(); }
+    if(!Cloud.sb){ if(!DECK) go("signin"); }
+    else Cloud.sb.auth.getSession().then(function(r){
+      Cloud.session=(r.data && r.data.session)||null;
+      if(Cloud.session) refreshDeck(false); else if(!DECK) go("signin");
+    }).catch(function(){ if(!DECK) go("signin"); });
+  }
+  LAST_TESTS=runTests();
+}
+boot();
+
+/* Offline support: best-effort registration; file:// has no service worker and still runs. */
+if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
+  // The first install also fires controllerchange; only a replacement controller is an update.
+  var hadController=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", function(){
+    if(!hadController){ hadController=true; return; }
+    showUpdateToast();
+  });
+  window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+}
+</script>
+</body>
+</html>
